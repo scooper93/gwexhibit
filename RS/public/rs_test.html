@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<!-- Beginning of document -->
+<html lang="en">
+<head>  
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!--This just sets up the page config - shouldn't need to be changed -->
+    <title>Royal Society Exhibit</title>
+    <meta name="description" content="Thinktank Gravitational Wave Control Screen">
+    <meta name="author" content="Sam Cooper">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <!-- These are the stylesheets (the themes for the site)-->
+    <link href="../bower_components/pure/pure-min.css" rel="stylesheet">
+    <!-- So we're compatible with old versions of Internet Explorer -->
+    <!-- <link href="css/grid-old-ie.css" rel="stylesheet"> -->
+  <link href="../bower_components/pure/grids-responsive-min.css" rel="stylesheet">
+  <link href="css/grid.css" rel="stylesheet">
+    <!-- Code syntax highlighting -->
+    <!-- This is packages needed for socket io and reveal.js -->
+    <script src="socket.io/socket.io"></script>
+    <script src="js/jquery.min.js"></script>
+<!--     <script type="text/javascript" src="../node/smoothie/smoothie.js"></script> -->
+    <!-- <script src="bower/Flot/jquery.flot.axislabels.js"></script> -->
+    <link href="css/rs.css" rel="stylesheet">
+ </head>  
+
+ <script>
+  // any variables we want to be created before we load the page
+  var socket = io.connect('http://localhost')
+  var idle = 3*60;
+  var Locked;  // For seeing the global state
+  var signal; // For seeing what signal is output
+  var windowWidth; 
+  var windowHeight;
+  var dataLength =500;
+  var graphData = new Array(dataLength).fill(512);
+  var drawing =false;
+  var inuse=false;
+ </script>
+
+<!-- Future Sam, read through this when not on a train and test this out and get it running -->
+<!-- Things that need implementing-->
+<!-- In brackets (is where things have dependencies) -->
+<!-- Live trace of PD Signal (server) --> 
+  <!-- Needs a visual thing on the screen saying wait [Einstein saying this may be fun] {partially done} -->
+  <!-- Some debugging about what message is being output. May be able to do this in a socket call {done} -->
+
+<!-- Code layout -->
+<!-- Server handles everything. Pi Connects to both arduinos (input and output) and a computer/ laptop to drive everything - if a more powerful raspberry pi available may be able to serve everything off this but this would have to be seperate from the server one as the xwindow takes too much resources. --> 
+<!-- GRAPH DRAWING: canvasjs, visjs, smoothie charts builder too are things to look into -->
+<!-- How Poeple will interact with it -->
+
+<!-- Press Button connected to Input arduino, this sends message to server which sends three messages, one to the input arduino to stop all lights and another to the output arduino to send the correct signal to the piezo's. The third message will be some kind of text that says what we're driving it with and that the thing is locked until the message finishes--> 
+
+<div class="pure-g cameraContainer"> 
+  <div class="cameraHeader pure-u-1">
+    <!-- if we want a header it goes here -->
+  </div>
+  <div class="webcam1 pure-u-1-4"></div>
+    <!-- <img src="http://147.188.32.16:8081/" alt="camera1" class="camera pure-u-1"> -->
+     <video autoplay="true" id="videoElement" class="webcam1 pure-u-2-4"></video>
+    <div class="webcam1 pure-u-3-8"></div>
+</div>
+
+
+<div class="graph-header pure-g pure-u-1"></div>
+ <div class="graph_container">
+   <canvas id="realtime_graph"></canvas>
+ </div>
+
+
+<script>
+// Here we'll draw the canvas stuff for the graph
+ var canvasHeight;
+ var canvasWidth;
+ var offsety;
+ var offsetx;
+ var oldValue;
+ var currentValue;
+ var socket=io();
+ var signal ="std";
+
+// ***** Test Code ***** 
+// this should be for testing the exhibit functionality with no arduinos plugged in
+function signaltest(variable) {
+  if (inuse==false) {
+    inuse = true;
+    switch(variable) {
+      case "cw":
+        signal="cw";
+        socket.emit("reqGraphData",signal)
+        break;
+      case "burst":
+        signal="burst";
+        socket.emit("reqGraphData",signal)
+        break;
+      case "lowm":
+        signal="lowm";
+        socket.emit("reqGraphData",signal)
+        break;
+      case "highm":
+        signal=highm;
+        socket.emit("reqGraphData",signal)
+        break;
+    }
+  }
+  else if (inuse==true){
+    // Do nothing
+  }
+
+}
+
+function updateData(PDdata) {
+    tempGraphData = Math.round(offsety+graphHeight*PDdata/1024);
+    graphData.unshift(tempGraphData);
+    graphData.pop();
+    drawStuff();
+}
+</script>
+<script>
+ $('document').ready(function(){
+
+    var graph = document.getElementById("datapoints")
+    var ctx = graph.getContext('2d')
+    var axes = document.getElementById("graph");
+    var atx = axes.getContext('2d')
+    
+    canvasWidth = $("#graph").width();
+    canvasHeight =$("#graph").height();
+    offsetx = Math.round(canvasWidth/50);
+    offsety = Math.round(canvasHeight/50); // currently the canvas offsets are set to 1/50th of the width of the canvas
+
+    graphHeight= Math.round(canvasHeight-5*offsety);
+    graphWidth = Math.round(canvasWidth-5*offsetx);
+    
+    // now need to draw the axes for the graph
+    atx.beginPath();
+    atx.moveTo(offsetx,offsety)
+    atx.lineTo(offsetx,offsety+graphHeight);
+    atx.moveTo(offsetx,offsety+graphHeight);
+    atx.lineTo(offsetx+graphWidth,offsety+graphHeight);
+    atx.clearRect(offsetx,offsety,offsetx+graphWidth,offsety+graphHeight);
+    atx.stroke();
+    atx.closePath();
+     // This will be the box the holds the graph
+  })
+ function drawStuff() {
+    // ctx.beginPath();
+    if (drawing==false) {
+      var delay= 20; // setting a 20ms delay      
+
+      graph = document.getElementById("datapoints")
+      ctx = graph.getContext('2d')
+      // Now to scale the x inputs
+      xscale = graphWidth/dataLength;
+      ctx.beginPath();
+      ctx.clearRect(0,0,graphWidth,graphWidth);
+      ctx.closePath();
+      for (var i = graphData.length; i > 3; i-2) {
+        drawing =true;
+        ctx.beginPath();
+        console.log(graphData[i])
+        var x1 = Math.round(offsetx+(xscale*i));
+        var x2 = Math.round(offsetx+(xscale*(i-1)));
+        var x3 = Math.round(offsetx+(xscale*(i-2)));
+        var y1 = Math.round(graphData[i]);
+        var y2 = Math.round(graphData[i-1]);
+        var y3 = Math.round(graphData[i-2]);
+        ctx.bezierCurveTo(x1,y1,x2,y2,x3,y3)
+        ctx.stroke();  
+        if (i<=2){
+          drawing=false;
+          ctx.closePath();
+          inuse=false;
+          delay=10;
+          console.log(i)
+            // sleep(50) // add this to slow down data rate, otherwise its pretty qucik
+          setTimeout(function(){
+            reqData();
+          },delay)
+         }
+       }      
+    }
+    else if(drawing==true){
+      // console.log("cant do anything were drawing")
+    }
+ }
+// Need to generate something that convets the received value into a line coordinate
+// this should be done inside a set interval command to redraw soem data. 
+// top right of the graph will be the coordinate offsetx, offsety, this will be where our last point is drawn. 
+// We'll have to redraw all of the graph each time, so lets store the data in an array, so we should store the data in an array as it comes in and remove it later. 
+
+</script>
+
+
+
+<script> 
+  window.onload = startUp();
+  // dispWebcam();
+  socket.on('resExhibitState', function(msg){
+    if(msg==true) {
+      Locked=true;
+      // debugging
+      console.log(Locked);
+      socket.emit('reqSignal'); 
+    }
+    else if (msg==false) {
+      // If we want to do anything when its not in use
+      // console.log('you should see this message')
+    }
+  });
+  socket.on('resSignalType', function(msg){
+    console.log(msg); // Currently for debugging
+    document.getElementById("signalMessage")[0].innerHTML=msg;
+  });
+
+  socket.on('resGraphData', function(PDdata){
+    // graphData.unshift(PDdata);
+    // graphData.pop();
+    // Data will be in a value between 0 and 1024, so we'll scale the y axis here and then do the x axis just before plotting
+
+    // y axis max corresponds to the offset of the graph within the canvas. the minimum corresponds to the graph height plus this offset. 
+    tempGraphData = Math.round(offsety+graphHeight*PDdata/1024);
+    graphData.unshift(tempGraphData);
+    graphData.pop();
+    console.log(tempGraphData)
+    reqData();
+    // drawStuff();
+  })
+
+  function reqData(msg){
+    socket.emit('reqGraphData',signal); // requests new graph data
+  }
+ // Not sure whether this will do what its intended. 
+function startUp() {
+  socket.emit('reqExhibitState',signal); // Not sure iof w eshould use socket.emit here or io.emit probably
+ // we'll need to use array.unshift and then array.pop
+  reqData();
+}
+
+
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+ }
+
+// socket.on("signalMessage")
+</script>
+
+
+  <script>
+   var video = document.querySelector("#videoElement");
+   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+   if (navigator.getUserMedia) {       
+     navigator.getUserMedia({video: true}, handleVideo, videoError);
+   }
+   function handleVideo(stream) {
+     video.src = window.URL.createObjectURL(stream);
+   }
+   function videoError(e) {
+     // do something
+   }
+ </script>

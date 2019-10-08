@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!-- Beginning of document -->
+<html lang="en">
+<head>  
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!--This just sets up the page config - shouldn't need to be changed -->
+    <title>Royal Society Exhibit</title>
+    <meta name="description" content="Royal Society Exhibit">
+    <meta name="author" content="Sam Cooper">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <!-- These are the stylesheets (the themes for the site)-->
+    <link href="/bower/pure/pure-min.css" rel="stylesheet">
+    <!-- So we're compatible with old versions of Internet Explorer -->
+    <!-- <link href="css/grid-old-ie.css" rel="stylesheet"> -->
+  <link href="/bower/pure/grids-responsive-min.css" rel="stylesheet">
+  <link href="css/grid.css" rel="stylesheet">
+    <!-- Code syntax highlighting -->
+    <!-- This is packages needed for socket io and reveal.js -->
+    <script src="js/jquery-3.2.1.js"></script>
+    <script src="js/graph.js"></script>
+    <link href="css/rs.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+ </head>  
+
+ <script>
+  // any variables we want to be created before we load the page
+  var socket =io();
+  var Locked;  // For seeing the global state
+  var signal;
+  var lastval;
+  var plot;
+  var drawingSpeed =120;
+  var FPS = 30;
+  var pointsPerDraw =1+Math.ceil(drawingSpeed/FPS);
+  var l = 0;
+  var tempArray1 = new Array(pointsPerDraw);
+  var numAverages = 10;
+  var tempArray = new Array(numAverages).fill(0);
+ </script>
+
+<div class="pure-g cameraContainer"> 
+  <div class="cameraHeader pure-u-1">
+    <!-- if we want a header it goes here -->
+  </div>
+  <div class="webcam1 pure-u-7-24"></div>
+    <img src="http://10.3.1.107:8081/" alt="camera1" class="webcam1 pure-u-10-24">
+    <!--  <video autoplay="true" id="videoElement" class="webcam1 pure-u-12-24"></video> -->
+    <div class="webcam1 pure-u-7-24"></div>
+</div>
+
+<div class="pure-g graph_section"> 
+  <div class="pure-u-1-24"></div>
+   <div  class="pure-u-22-24" id="graph_container">
+     <canvas id="realtime_graph"></canvas>
+   </div>
+   <div class="pure-u-1-24"></div>
+</div>
+
+<script>
+  plot = new Plot();
+
+  plot.plotOptions.drawXTickText= false;
+  plot.plotOptions.drawYTickText = false;
+  // plot.plotOptions.drawYTickText = false;
+  // Setting  titles
+  plot.dataOptions.title = "Interferometer Signal";
+  plot.dataOptions.xlabel = "Time";
+  plot.dataOptions.ylabel = "Signal";
+  // Setting font colours
+  plot.fontColour.xlabel = "rgba(234,198,122,1)";
+  plot.fontColour.ylabel = "rgba(234,198,122,1)";
+  plot.fontColour.title = "rgba(234,198,122,1)";
+  plot.fontColour.xtick = "rgba(234,198,122,1)";
+  plot.fontColour.ytick = "rgba(234,198,122,1)";
+  // Setting line colours
+  plot.lineColour.yaxis = "rgba(35,50,55,1)";
+  plot.lineColour.xaxis = "rgba(35,50,55,1)";
+  plot.lineColour.xtick = "rgba(35,50,55,1)";
+  plot.lineColour.ytick = "rgba(35,50,55,1)";
+  plot.lineColour.xgrid = "rgba(35,50,55,0.5)";
+  plot.lineColour.ygrid = "rgba(35,50,55,0.5)";
+  plot.dataMax = 1100;
+  plot.dataMin= 0;
+  plot.initialisePlot();
+  // now we can set some colours and defaults by editing setting values, as we've already set the defaults.
+  function drawStuff() {
+      setInterval(function(){
+        reqData();
+        },Math.round(1000/drawingSpeed))
+  }
+</script>
+
+
+<script> 
+  window.onload = startUp();
+  // dispWebcam();
+  socket.on('resExhibitState', function(msg){
+    if(msg==true) {
+      Locked=true;
+      // debugging
+      // console.log(Locked);
+      socket.emit('reqSignal'); 
+    }
+    else if (msg==false) {
+      // If we want to do anything when its not in use
+      // console.log('you should see this message')
+    }
+  });
+  socket.on('resSignalState', function(msg){
+    // console.log(msg); // Currently for debugging
+    plot.dataOptions.title = msg;
+  });
+
+  socket.on('resGraphData', function(PDdata){
+    // if (PDdata == null) {
+    //   PDdata= lastval;
+    // }
+    // console.log(PDdata,ifo_sim)
+    
+    var dataSend = average(PDdata);
+      tempArray1[l] = dataSend;
+      l=l+1;
+      if(l==pointsPerDraw) {
+        plot.plotData(tempArray1);
+        l=0;
+      }
+    // plot.plotData(dataSend)
+    lastval = dataSend;
+  })
+
+  function reqData(){
+    socket.emit('reqGraphData'); // requests new graph data
+  }
+ // Not sure whether this will do what its intended. 
+function startUp() {
+  socket.emit('reqExhibitState',signal); // Not sure iof w eshould use socket.emit here or io.emit probably
+ // we'll need to use array.unshift and then array.pop
+  drawStuff();
+}
+socket.on('Heartbeat',function(msg){
+	console.log(msg);
+});
+
+  function average(newdata) {
+      tempArray.unshift(newdata);
+      tempArray.pop();
+      var averagedData =0;
+      for (var i = 0; i<numAverages; i++) {
+        averagedData = averagedData + tempArray[i];
+      }
+      return (averagedData/numAverages); 
+  };
+
+
+</script>

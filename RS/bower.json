@@ -1,0 +1,23 @@
+{
+  "name": "rs_exhibit",
+  "description": "Exhibition software for the royal society exhibit",
+  "main": "app.js",
+  "authors": [
+    "Sam Cooper"
+  ],
+  "license": "GPL-3.0",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "pure": "^0.6.2",
+    "socket.io": "^1.7.3",
+    "socket.io-client": "^2.0.3"
+  }
+}

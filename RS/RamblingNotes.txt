@@ -1,0 +1,158 @@
+Note: jQuery source files +minified and socketio minified files have been removed, as well as the media used for the exhibit. 
+
+
+Readme for Royal Society Project - at present this is just a copy paste from the thinktank exhibit but I've removed things that aren't valid.
+
+Setup Notes:
+
+Reveal is a frontend thing and should never appear in app.js. 
+
+Install bower through npm. 
+Use express to serve the UI
+Then can use Express to serve markup and reveal
+Socket.io
+
+How to use the web severs and stuff. 
+
+To start running/developing the michelson exhibit, you ned some programs to start with, a decent text editor, node.js (and npm) - https://nodejs.org/en
+
+Once thee have been installed, you need to navigate to wherever you’ve cloned the git repo (which stores all the libraries and stuff)
+
+	npm update
+	npm install
+
+This should let you pickup all of the packages needed to view/edit/run the web server, to do this in the terminal type, making sure that you’re currently in the main folder 
+
+node app -- This may not be needed
+
+This will then open up a web browser, which has the address of localhost:8000, from here you can see the current site. 
+
+** Libraries Used ** 
+
+
+	jQuery
+	reveal.js
+	johnny-five.js
+	express
+	angularjs
+	socket.io
+	
+** Languages used ** 
+
+Javascript, css, HTML or Markdown
+The layout and things for the presentation are written in HTML/markdown (this should be enabled but I need to check it), while all the scripting is done in javascript (which Sam will handle).
+
+** Javascript Stuff **
+
+So to get the arduino talking to the rest of the web page I've used a combination of angular js and socket-io. Though currently both are exposed to the public in a way that I'm not 100% comfortable with. 
+
+Only other thing to do javascript wise is to setup and get some kind of webGL thing working to add stretch and squash in there.
+
+
+** Theming the website **
+
+The themes of the site/ presentation are controlled by the css files which are loaded at the start of the web server, and stay there until changed by the code somewhere. We need the themes for each page to be consistent across each of the pages, see the example css files for what can be changed. 
+
+http://www.w3schools.com/css/
+
+This may be a good place to learn css if you don’t already do it. But the jist of it is, for each tag that you specify in the HTML file, i.e. <p> <body> <h1> etc, this can have different styles applied to it, such as 
+
+color:
+text-align: 
+font-family:
+
+etc. You structure the CSS file like this
+
+body {
+	background-color: #FF0000 
+}
+
+this sets anything within and including the bodybag to have a color of #FF0000 (which is red if I remember correctly.
+
+There are already some themes that are present in reveal.js (the main slide thing that we’re using, but I think that we may need some more
+
+Page Layout Using Reveal.js
+
+Reveal.js is a really nice way of making presentations (which we’re adapting to make a modern flash application for people to search through and learn about gravitational waves.
+
+Anything outside of <body> tags is stuff for reveal.js and the website to use, this includes but is not limited to configuration data for the site (what parameters it should run under, touch enabled stuff etc) and the theming of it. 
+
+
+To create a new slide, place it in a <section> tag and don’t forget to close it. 
+
+Tags nested inside each other like 
+
+<section>
+	<p>This is the top layer</p>
+	<section
+		<p>Some text in the bottom layer</p>
+	</section>
+</section>
+
+This is a vertical arrangement of slides, and can be used for good effect. I’m trying out what it looks like to have the main slide/page in the middle and then using a flipping animation to go to each of the other four/or more slides. 
+
+using sections like this
+
+<section>
+	<p> Some text on the first horizontal slide </p>
+</section>
+
+<section>
+	<p> Some text on the next slide </p>
+</section>
+
+This represents two pages next to each other horizontally. 
+
+
+** Development Guidelines **
+
+So you can set positions and styles for different elements, please name each <div> with a unique and understandable name so you can reference it in the stylesheet. 
+
+e.g. 
+
+<div class="Page0Heading1">
+	This is some text in the 0th Page heading
+</div>
+
+When specifiying places for the elements in the page to go, they should be put ike this
+
+In the HTML file
+<section> // Starts a new slide
+	
+	<div class="MainDiv">
+		<div class="Slide1Element1">
+		Enter some html here
+		</div>
+		<div class="Slide1Element2">
+		enter some more html here
+		</div>
+	</div>
+</section>
+
+Then you can style the things in the relvant stylesheet - remember check that new ones are loaded in by the webpage - you can have multiple ones and can access them like so. 
+<link rel="stylesheet" href="css/example.css" id="theme">
+
+
+Now to the CSS file
+
+div.MainDiv{
+	position:relative; // This is important the main div should always be relative
+	//Enter other stuff here 
+}
+
+div.Slide1Element1 {
+	position: absolute;
+	//enter other stuff here
+}
+
+div.Slide1Element2 {
+	position: absolute;
+	//enter other stuff here
+}
+
+Basically the child div should always be absolute and the parent div should be relative. 
+Then each of the child divs will have positions to where they are to the parent div. Theres a nice example of how it looks here
+http://www.w3schools.com/css/tryit.asp?filename=trycss_position_absolute
+
+I mean, for development theres no reason why we shouldn't include borders around eahc of the divs so we can more easily see where they are. 
+

@@ -1,0 +1,49 @@
+Graphing notes. 
+
+Running the graphing library. 
+
+Include the graph.js file (or whatever I decide to call this.)
+
+<script src="PATH_TO_YOUR_PUBLIC_JS_FOLDER/graph.js">
+
+Simply create a canvas element with the ID of "realtime_graph" and a container div element called "graph_container"
+Then make a new instance of the graphing library
+
+	var realtimeGraph = new Plot();
+
+Now initialise the plot.
+
+	realtimeGraph.initialisePlot();
+
+Now create the data you need, this should be stored in an array. Currently the plotter only takes in Y axis data and uses the number of points and creates an array to plot against with the length of the number of points. As the first version didn't need any x-axis data. This will be added in version 2. Be sure to set the graph to be some size as it doesn't set a size. 
+
+An example implementation is as follows. 
+<div id="graph_container"> 
+	<canvas id="realtime_graph"></canvas>
+</div>
+
+<script>
+	var realtimeGraph = new Plot();
+	var drawingSpeed= 180;
+	var FPS = 60; // Buttery smooth 60fps drawing
+	var pointsPerDraw = 1+Math.ceil(drawingSpeed/FPS);
+	var l=0;
+	var tempArray = new Array(pointsPerDraw);
+	realtimeGraph.initialisePlot();
+
+	setInterval(function(){
+		createData();
+    },Math.round(1000/drawingSpeed));
+
+
+	function createData(t) {
+            var d=new Date();
+           	val = Math.round(500+500 * Math.sin( (d.getTime() % 2000 ) / ( 200 / Math.PI ) ));
+            tempArray[l] = val;
+            l=l+1;
+            if (l==pointsPerDraw) {
+            	plot.plotData(tempArray);
+            	l=0;
+            }
+	}
+</script>

@@ -1,0 +1,22 @@
+body{
+	background-color: rgba(24, 18, 30, 255)
+}
+
+#graph_container{
+	height: 480px;
+	padding: 0%;
+	bottom: 2%;
+}
+
+.cameraContainer{
+	height:480px;
+	padding: 1%;
+	background-image: url("/media/images/blackholes.jpg");
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.webcam1{
+	height: 480px;
+	padding: 0%;
+}

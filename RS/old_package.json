@@ -1,0 +1,22 @@
+{
+  "name": "rs_exhibit",
+  "version": "0.0.1",
+  "description": "Exhibition software for the royal society exhibit",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sam Cooper",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "express": "^4.13.4",
+    "fs": "0.0.1-security",
+    "http": "0.0.0",
+    "johnny-five": "^0.10.6",
+    "jquery": "^3.2.1",
+    "path": "^0.12.7",
+    "serialport": "^4.0.7",
+    "smoothie": "^1.27.0",
+    "socket.io": "^1.7.3"
+  }
+}
