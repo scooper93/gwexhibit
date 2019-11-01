@@ -1,0 +1,346 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>  
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!--This just sets up the page config - shouldn't need to be changed -->
+    <title>Michelson Exhibit</title>
+    <meta name="description" content="An exmaple of the gui that can be used for the michelson display project">
+    <meta name="author" content="Sam Cooper">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    
+    <!-- These are the stylesheets (the themes for the site)-->
+    <link rel="stylesheet" href="/reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/white.css" id="theme">
+    <link rel="stylesheet" href="/reveal/lib/css/zenburn.css">
+    <link rel="stylesheet" href="css/control2.css">
+    <!-- Code syntax highlighting -->
+   <script src="/socket.io/socket.io.js"></script>
+   <script src="/js/jquery.min.js"></script>
+   <script src="/js/hammer.min.js"></script>
+  <script src="/reveal/lib/js/head.min.js"></script>
+  <script src="/reveal/js/reveal.js"></script>
+ </head>  
+
+<script>
+  var socket = io();
+  var Locked = false;
+  var xlast=1024/2;
+  var ylast=768/2;
+  var xtotal;
+  var ytotal
+  var threshold=20;
+</script>
+<body>  
+  <script>
+    var socket = io();
+    socket.on('ButtonControl', function (msg) {
+        console.log('ControlPanel is ' + msg);
+        if(msg=='Unlocked'){
+          Locked=false;
+          console.log('Control Panel is Unlocked');
+          sleep(2000);
+          controller('GoHome','Home')
+        }
+        else if(msg=='Locked') {
+          Locked=true;
+        }
+    });
+    // Incase sleeping is needed
+    function sleep(milliseconds) {
+      var start = new Date().getTime();
+      for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds){
+        break;
+        }
+      }
+    }
+  </script>
+
+  <script type="text/javascript">
+    function controller(elmt,msg) {
+        var socket =io();
+        console.log(Locked)
+        if(Locked==true){
+          alert('Control Panel is Locked');
+          console.log("locked");
+        }
+        else if (Locked==false) {
+            // This should never have happened.
+          socket.emit('PageRequest',msg);
+          console.log('emmitted at User '+msg);
+          }
+        else {
+          console.log('You should never see this message, panic');
+        }
+      }
+</script>
+      <div class="reveal">
+        <div onmouseover= "controlPageNav('top')" class="topNav"></div>
+        <div onmouseover= "controlPageNav('bot')" class="bottomNav"></div>
+        <div onmouseover= "controlPageNav('right')" class="rightNav"></div>
+        <div onmouseover= "controlPageNav('left')" class="leftNav"></div>
+      <!-- *********** This is where the slide content should be stored ********-->
+      <div class="slides">
+
+          <!--All content for the Projector Screen should be placed here -->
+          <section id='Home'>
+            <h1> This is the Home slide </h1>
+              <p>Home Page</p>
+              <!-- Here should be some michelson breathing and maybe stretch and squash  (slide 0)-->
+          </section>
+          <section>
+              <section id="IFO">
+                <h1> This is the IFO Main Page</h1>
+              </section>
+              <section id="IFO1">
+                <h1> This is the 2nd IFO page</h1>
+              </section>
+              <section id="IFO2">
+                  <h1> This is 3rd IFO page </h1> 
+              </section>
+              <section id="IFO3">
+                  <h1> THis is the 4th IFO PAge
+              </section>
+          </section>
+          <section>
+              <section id="GWBH">
+                <h1> This is the Main Black Hole Page </h1>
+              </section>
+              <section id="GWBH1">
+                <h1> This is the 2nd Black Hole Page </h1>
+              </section>
+              <section id="GWBH2">
+                <h1> This is the 3rd Black Hole Page </h1>
+              </section> 
+              <section id="GWBH3">
+                <h1> This is the 4th Black Hole Page </h1>
+              </section>
+          </section>
+          <section>
+            <section id="Det">
+              <h1> This is the Main Detection Page </h1>
+            </section>
+            <section id="Det2">
+              <h1> This is the 2nd Detection Page </h1>
+            </section>
+            <section id="Det3">
+              <h1> This is the 3rd Detection Page </h1>
+            </section>
+            <section id="Det4">
+              <h1> This is the 4th Detection Page </h1>
+            </section>
+          </section>
+          <section>
+            <section id="Quiz">
+              <h1> This is the Main Quiz Page </h1>
+            </section>
+            <section id="Quiz1">
+              <h1> This is the 2nd Quiz Page </h1>
+            </section>
+            <section id="Quiz2">
+              <h1> This is the 3rd Quiz Page </h1>
+            </section>
+            <section id="Quiz3">
+              <h1> This is the 4th Quiz Page </h1>
+            </section>
+          </section>
+      </div>
+    </div>
+
+<!-- This is the start of the configuration files for the exhibit peice -->
+
+  <script>
+  Reveal.initialize({
+
+    width: 1024,
+    height: 768,
+
+    // Factor of the display size that should remain empty around the content
+    margin: 0.1,
+
+    // Display controls in the bottom right corner
+    controls: false,
+
+    // Display a presentation progress bar
+    progress: false,
+
+    // Display the page number of the current slide
+    slideNumber: false,
+
+    // Push each slide change to the browser history
+    history: false,
+
+    // Enable keyboard shortcuts for navigation
+    keyboard: false,
+
+    // Enable the slide overview mode
+    overview: false,
+
+    // Vertical centering of slides
+    center: false,
+
+    // Enables touch navigation on devices with touch input
+    touch: false,
+
+    // Loop the presentation
+    loop: true,
+
+    // Change the presentation direction to be RTL
+    rtl: false,
+
+    // Turns fragments on and off globally
+    fragments: true,
+
+    // Flags if the presentation is running in an embedded mode,
+    // i.e. contained within a limited portion of the screen
+    embedded: false,
+
+    // Flags if we should show a help overlay when the questionmark
+    // key is pressed
+    help: false,
+
+    // Flags if speaker notes should be visible to all viewers
+    showNotes: false,
+
+    // Number of milliseconds between automatically proceeding to the
+    // next slide, disabled when set to 0, this value can be overwritten
+    // by using a data-autoslide attribute on your slides
+    autoSlide: 0,
+
+    // Stop auto-sliding after user input
+    autoSlideStoppable: true,
+
+    // Enable slide navigation via mouse wheel
+    mouseWheel: false,
+
+    // Hides the address bar on mobile devices
+    hideAddressBar: true,
+
+    // Opens links in an iframe preview overlay
+    previewLinks: false,
+
+    // Transition style
+    transition: 'fade', // none/fade/slide/convex/concave/zoom
+
+    // Transition speed
+    transitionSpeed: 'slow', // default/fast/slow
+
+    // Transition style for full page slide backgrounds
+    backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+
+    // Number of slides away from the current that are visible
+    viewDistance: 3,
+
+    // Parallax background image
+    parallaxBackgroundImage: '', // e.g. "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'"
+
+    // Parallax background size
+    parallaxBackgroundSize: '', // CSS syntax, e.g. "2100px 900px"
+
+    // Number of pixels to move the parallax background per slide
+    // - Calculated automatically unless specified
+    // - Set to 0 to disable movement along an axis
+    parallaxBackgroundHorizontal: null,
+    parallaxBackgroundVertical: null
+
+});
+  </script>
+
+  <script>
+      var changeControlPage= function(h,v) {
+      var Hor=h.toString();
+      var Ver=v.toString();
+      var pageIndex="#/"+Hor+"/"+Ver;
+      return pageIndex;
+    }
+
+    var getPosition = function() {
+      return Reveal.getIndices();
+    }
+
+      document.addEventListener("click", function() {
+      var slidePos=getPosition();
+      var h=slidePos.h;
+      var v=slidePos.v;
+      sendGW(this,'standard');
+      switch(h) {
+        case 1:
+          //This is where we just do nothing - as we're on the home screen.
+          break;
+        default:
+          switch(v){
+            case 3:
+              v=0;
+              var pageIndex=changeControlPage(h,v);
+              document.location.href=pageIndex;
+              break;
+            default:
+              v++;
+              var pageIndex=changeControlPage(h,v);
+              document.location.href=pageIndex;
+              break;
+          }
+      }
+    });
+
+    controlPageNav = function(msg) {
+      
+      if (Locked==false) {
+        var slideNum= getPosition();
+        var h= slideNum.h;
+        var v= slideNum.v;
+        console.log(h);
+        switch(h) {
+          case 0:
+            switch(msg) {
+              case 'top':
+                document.location.href="#/Quiz";
+                controller(this,'Quiz');
+                break;
+              case 'bot':
+                document.location.href="#/Det";
+                controller(this,'Detection');
+                break;
+              case 'right':
+                document.location.href="#/IFO";
+                controller(this,'IFO');
+                break;
+              case 'left':
+                document.location.href="#/GWBH";
+                controller(this,'BlackHole')
+                break;
+            }
+            break;
+          case 1:
+            if(msg=='left') {
+              document.location.href="#/Home";
+            }
+            break;
+          case 2:
+            if(msg=='right') {
+              document.location.href="#/Home";
+            }
+            break;
+          case 3:
+            if(msg=='top'){
+              document.location.href="#/Home";
+            }
+          case 4:
+            if(msg='bot'){
+              document.location.href="#/Home";
+            }
+          break;
+        }
+      }
+
+    }
+    sendGW = function(elmt, msg){
+      var socket=io();
+      socket.emit('arduinocontrol',msg);
+    }
+  </script>

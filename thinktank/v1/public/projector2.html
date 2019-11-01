@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<!--This just sets up the page config - shouldn't need to be changed -->
+		<meta charset"utf-8">
+		<title>Michelson Exhibit</title>
+		<neta name="description" content="An exmaple of the gui that can be used for the michelson display project">
+		<meta name="author" content="Sam Cooper">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		
+		<!-- These are the stylesheets (the themes for the site)-->
+		<link rel="stylesheet" href="css/projector.css">
+		<!-- Code syntax highlighting -->
+	 <script src="/socket.io/socket.io.js"></script>
+	 <script src="/js/jquery.min.js"></script>
+	</head>
+	<script>
+	// Global Variables
+	var videoPlaying=false;
+	var page;
+	var timeLeft;
+	</script>
+	<!-- Exposes Socket io Globally -->
+	<script>var socket= io();</script>
+	<body>
+		<script type="text/javascript">
+		socket.on('reqVideoState', function() {
+			if(videoPlaying==true) {
+				console.log('Video State requested');
+				socket.emit('resVideoState','Play');
+				// socket.emit('VideoLength', duration)
+				console.log('video State Sent');
+			}
+		});
+		function lockControl(elmt,msg) {
+			console.log(msg);
+			socket.emit('ButtonControl',msg);
+		}
+		</script>
+		<!-- Here we select where we are and what webcam that we want -->
+		    <!-- <video autoplay="true" id="videoElement" class="webcam1"></video> --> <!-- Local Webcam -->
+		    <img src="http://10.3.1.107:8081/" alt="Camera 1" class="webcam1"></a> <!-- Thinktank -->
+		    <!-- <img src="http://147.188.32.16:8081/" alt="Camera 1" class="webcam1"></a><!-- Uni Pi --> -->
+		<!--If in thinktank use internal ip 10.3.1.107, otherwise use the other camera 1 item --> 
+		<div id="videoContainer">
+			<!-- The video container that has the sources to each one of our videos.  We preload them too for speed-->
+			<video preload="auto" id="IFOVID" onended="lockControl('IFO','Unlocked')">
+				<source src="/Media/Video/What_is_it_subv2_large.mp4" type="video/mp4" />
+			</video>
+			<video preload="auto" id="BHVid" preload="auto" onended="lockControl('BlackHole','Unlocked')">
+				<source src="/Media/Video/Black_holes_and_gravitational_waves_subv2_large.mp4" type="video/mp4" />
+			</video>
+			<video preload="auto" id="DetVid" onended="lockControl('Detection','Unlocked')">
+				<source src="/Media/Video/Detecting_gravitational_waves_subv2_large.mp4" type="video/mp4" />
+			</video>
+
+		</div>
+<!-- Comment out this next bit of code if your at the thinktank or running on the pi -->
+	// <script>
+	// 	var video = document.querySelector("#videoElement");
+	// 	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+	// 	if (navigator.getUserMedia) {       
+	// 		navigator.getUserMedia({video: true}, handleVideo, videoError);
+	// 	}
+	// 	function handleVideo(stream) {
+	// 		video.src = window.URL.createObjectURL(stream);
+	// 	}
+	// 	function videoError(e) {
+	// 		// do something
+	// 	}
+	// </script>
+	<script>
+		// Event listner for page requests, used to change pages
+		socket.on('PageRequest', function (msg) {
+			console.log('Got command: ' + msg);
+			switch (msg) {
+				case 'Home':
+					displayNone();
+					growWebcam();
+					videoPlaying=false;
+					// document.getElementsByClassName('webcam1')[0].style.display='block';
+					page='Home';
+					break;
+				case 'GWBH':
+					var vid1=document.getElementById("BHVid");
+					console.log(vid1)
+					displayNone();
+					shrinkWebcam();
+					videoPlaying=true;
+					// document.getElementsByClassName('webcam1Small')[0].style.display='block';
+					setVideoTime(vid1);
+					page='BlackHole';
+					break;
+				case 'IFO':
+					var vid2=document.getElementById("IFOVID");
+					displayNone();
+					shrinkWebcam();
+					videoPlaying=true;
+					// document.getElementsByClassName('webcam1Small')[0].style.display='block';
+					setVideoTime(vid2);
+					page='IFO';
+					break;
+				case 'Detection':
+					var vid3=document.getElementById("DetVid");
+					displayNone();
+					shrinkWebcam();
+					videoPlaying=true;
+					// document.getElementsByClassName('webcam1Small')[0].style.display='block';
+					setVideoTime(vid3);
+					page='Detection';
+					break;
+				case 'Quiz':
+					displayNone();
+					videoPlaying=false;
+					document.getElementsByClassName('webcam1')[0].style.display='block';
+					page='Quiz';
+			}
+		});
+// We now need to get the video time, pause it set the time to 0 and then play, otherwise everything sets on fire (not literally)
+	  function setVideoTime(vid) {
+  		console.log(vid);
+  		vid.pause(); 
+  		sleep(100);
+		vid.currentTime=0;
+		vid.play();
+		vid.style.display='block';
+		msg=vid.duration;
+		socket.emit('VideoLength',msg);
+		lockControl(vid,'Locked');
+	  	}
+	  	// Set all videos to none
+	  	function displayNone(){
+			document.getElementById('IFOVID').style.display ='none';
+			document.getElementById('BHVid').style.display ='none';
+			document.getElementById('DetVid').style.display ='none';
+	  	}
+	  	// Incase we're feling sleepy and want to take a nap
+	  function sleep(milliseconds) {
+      	var start = new Date().getTime();
+    	for (var i = 0; i < 1e7; i++) {
+        	if ((new Date().getTime() - start) > milliseconds){
+        break;
+        }
+      }
+    }
+    // We now need to shrink the webcam 
+    function shrinkWebcam(){
+    	document.getElementsByClassName('webcam1')[0].style.height='30%';
+    	document.getElementsByClassName('webcam1')[0].style.width='30%';
+    	document.getElementsByClassName('webcam1')[0].style.top='20%';
+    	document.getElementsByClassName('webcam1')[0].style.left='9%';
+    	document.getElementsByClassName('webcam1')[0].style.transition='1s';
+    }
+    // Need to make the webcam grow and we can use a nice transition too. 
+    function growWebcam(){
+    	document.getElementsByClassName('webcam1')[0].style.height='60%';
+    	document.getElementsByClassName('webcam1')[0].style.width='60%';
+    	document.getElementsByClassName('webcam1')[0].style.left='13%';
+    	document.getElementsByClassName('webcam1')[0].style.top='18%';
+    	document.getElementsByClassName('webcam1')[0].style.transition='1s';
+    }
+	</script>
+	</body>
+
+<html>

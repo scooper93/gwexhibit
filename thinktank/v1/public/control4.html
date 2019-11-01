@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<!-- Beginning of document -->
+<html lang="en">
+<head>  
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!--This just sets up the page config - shouldn't need to be changed -->
+    <title>Michelson Exhibit</title>
+    <meta name="description" content="Thinktank Gravitational Wave Control Screen">
+    <meta name="author" content="Sam Cooper">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <!-- These are the stylesheets (the themes for the site)-->
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/white.css">
+    <!-- <link rel="stylesheet" href="reveal/lib/css/zenburn.css"> -->
+    <!-- Code syntax highlighting -->
+    <!-- This is packages needed for socket io and reveal.js -->
+   <!-- <script src="/socket.io/socket.io.js"></script> -->
+   <script src="js/jquery.min.js"></script>
+   <script src="../bower_components/reveal.js/lib/js/head.min.js"></script>
+   <script src="../bower_components/reveal.js/js/reveal.js"></script>
+
+<!--   <script src="reveal/lib/js/head.min.js"></script>
+  <script src="reveal/js/reveal.js"></script> -->
+ </head>  
+
+ <script>
+ var socket=io();
+  var socket = io(); // Exposes the global io element
+  var Locked = false;   // Needed to keep page from moving when video plays
+  var duration; // Duration of the video
+  var score = 0;    // Quiz Score
+  // the following code isnt used yet as this will form part of the timout function
+  var idle = 3*60;   // seconds needed to idle before the page reverts
+  var idleTime; // used for idling
+  var xLast; // variable to store the last x position
+  var yLast; // variable to store the last y position
+  var timeoutInterval;
+  var lastVideoh;
+</script>
+<body>  
+  <script>
+  // This may need re-writing. 
+  window.onload = startUp();
+    socket.on('ButtonControl', function (msg) {
+        console.log('ControlPanel is ' + msg);
+        //checks whether the control page is locked, if message is that we're unlocked then we can move pages.
+        if(msg=='Unlocked'){
+          Locked=false;
+          // console.log('Control Panel is Unlocked');
+          sleep(2000);
+          // since that we've just got the unlocked message we now need to move back home once the video has played.
+          controller('Home')
+        }
+        // if the message is locked then we need to set Locked=true so we can't move while the video is playing.
+        else if(msg == 'Locked') {
+          Locked=true;
+        }
+    });
+
+    // Incase sleeping is needed
+    function sleep(milliseconds) {
+      var start = new Date().getTime();
+      for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds){
+        break;
+        }
+      }
+    }
+    function  startUp () {
+      socket.emit('reqVideoState');
+    }
+    socket.on('resVideoState', function(msg){
+      if(msg=='Play') {
+        console.log(msg);
+        Locked=true;
+        console.log(Locked);
+      }
+    });
+  </script>
+
+  <script type="text/javascript">
+    function controller(msg) {
+        // console.log(Locked);
+        if(Locked==true){
+          // We're locked, so we shouldn't do anything to the page controls
+        }
+
+        else if (Locked==false) {
+          // This should never have happened.
+          // We now need to request a new page with the msg being the page we want.
+          socket.emit('PageRequest',msg);
+          Locked==true;
+          // console.log('emmitted at User '+msg);
+          }
+        else {
+          // console.log('You should never see this message, panic');
+        }
+      }
+</script>
+    <!-- Before anyone asks, or comments, this isn't the nicest way of doing this, but it works and was VERY quick to do (comparatively)... -->
+    <!-- Here are all of the control buttons placed outside of the reveal.js div element -->
+    <!-- This is done as reveal prevents elements from getting two close to the edge (due to scalability reasons) -->
+      <div onclick= "controlPageNav('top')" onmouseover="hoverControl('top')" class="topNav" onmouseout="hidePreview()"></div>
+      <div onclick= "controlPageNav('bottom')" onmouseover="hoverControl('bottom')" class="bottomNav" onmouseout="hidePreview()"></div>
+      <div onclick= "controlPageNav('right')" onmouseover="hoverControl('right')" class="rightNav" onmouseout="hidePreview()"></div>
+      <div onclick= "controlPageNav('left')" onmouseover="hoverControl('left')" class="leftNav" onmouseout="hidePreview()"></div>
+      <div onclick = "detailPageNav('Previous')" onmouseover="hoverControl('next')" class="previousButton"> </div>
+      <div onclick = "detailPageNav('Next')" onmouseover="hoverControl('Previous')" class="nextButton"> </div>
+      <div onclick="controlPageNav('Home')" class="homeButton" onmouseover="hoverControl('Home')"></div>
+      <!-- <div onclick="videoPlayer('firstPlay')" class=playvideo></div> -->
+      <div onclick="videoPlayer('Replay')" class="replayvideo"></div>
+      <div onclick="videoPlayer('Replay')" class="playvideo"></div> <!-- This one actually is the replay video button that appears -->
+      <img src="Media/Images/correctTick.svg" class="correctTick"> </img>
+      <img src="Media/Images/wrongTick.svg" class="wrongTick"></img>
+      <div class="HomeContainer">           
+       <!-- Home Screen -->      
+              <div class="topPreview"> <img src="Media/Images/Whatsit-hover.png"  width="100%" align="centre" </acronym></acronym></div>
+              <div class="bottomPreview"><img src="Media/Images/bottomPreview.png"  width="100%" align="centre" </acronym></acronym></div>
+              <div class="rightPreview"><img src="Media/Images/BHGW_hover.png"  width="100%" align="centre" </acronym></acronym></div>
+              <div class="leftPreview"><img src="Media/Images/Einstein-hover.png"  width="100%" align="centre" </acronym></acronym></div>
+            </div>
+      <!-- Clock div for video length time -->
+      <div id="clockdiv">
+        <div>
+          <span class="minutes"></span>
+          <div class="timerText">:</div>
+          <span class="seconds"></span>
+        </div>
+      </div>
+    <!-- Quiz and page nav stuff -->
+    <!-- Arguably we could have edited the reveal css file and used their page nav stuff, but that would have taken a lot of styling and in future versions we'll be moving away from reveal anyway-->
+    <div class="scoreCounter">0</div>
+    <div class="scoreText">Your Score:</div>
+    <div class="scoreOutOf">/ 4</div>
+    <div class="pageNumText">Page:</div>
+    <div class="pageCounter"></div>
+    <div class="pageOutOf">/ 4</div>
+    <div class="questionText">Question:</div>
+    <div class="questionOutOf">/ 4</div>
+    <div class="questionCounter"></div>
+    <div class="hometext"><acronym><img src="Media/Images/RollAndClickGW.png"  width="100%" align="centre"></img> </acronym></acronym></div>
+<!-- Reveal JS begins -->
+<div class="reveal">
+      <!-- *********** This is where the slide content should be stored ********-->
+      <div class="slides">
+          <!--All content for the Control Screen should be placed here -->
+          <section id='Home'>
+
+          </section>
+          <section>
+            <!-- Start of Interferometry -->
+              <section id="IFO">
+                <!-- h1> This is the IFO Main Page</h1-->
+                <acronym><img src="Media/Images/titles/DetectingGravitationalWaves.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                <div class="topictext">
+                   <p>This is a model of a laser interferometer, an instrument for accurately measuring changes in distance. </p>
+                   <br>
+                   <p>The light from the laser is split down the two arms. It bounces off the mirrors and is recombined to form the image on the screen. The pattern flickers when the length of the arms is altered.</p>
+                </div>
+                <div class="topicimage">
+                  <td valign="top">
+                    <p><acronym><img src="Media/Images/tmpimage_Michelson_dark.JPG" alt="Image credit: Anna Green. Model gravitational wave detector" width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                    <p><acronym><img src="Media/Images/Michelson.JPG" alt="Image credit: Anna Green. Model gravitational wave detector" width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                  </td>
+                </div>
+              </section>
+              <!---->
+              <section id="IFO1a">
+                <!-- h1> This is the IFO Main Page</h1-->
+                <acronym><img src="Media/Images/titles/ModelDetector.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                <p>
+                  <br>
+                  <acronym><img src="Media/Images/MichelsonLabelled_crop.png"  width="100%" align="left" valign="centre" vspace="5" alt="Image credit: Anna Green, Simon Stevenson. Model "</acronym></acronym>
+                </p>
+              </section>
+              <!---->
+              <section id="IFO1">
+                <!--h1> This is the 2nd IFO page</h1-->
+                <acronym><img src="Media/Images/titles/StretchAndSquash.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                <div class="topictext">
+                    <p>Gravitational waves stretch and squash space. </p>
+                    <br>
+                    <p>However, this effect is incredibly tiny and so difficult to measure. We are now able to build laser interferometers sensitive enough to spot these effects.</p>
+                    <br>
+                    <p>Click <font color="#23A38F">next</font> to find out about real gravitational wave detectors.</p>
+                  <!--acronym title="stretch and squash"><img src="Media/Images/tmpimage_stretch_and_squash_arrows2.png" alt="stretch and squash" width="100%" align="centre" vspace="5"</acronym></acronym-->
+                  </div>
+                  <div class="topicimage">
+                <td valign="top">
+                <p><acronym title=""><img src="Media/gifs/stretch_and_squash_1.gif" alt="" width="70%" align="right" valign="centre" vspace="5" alt="Image credit: Hannah Middleton. Stretch and squash space time."</acronym></acronym></p>
+                </td>
+                </div>
+              </section>
+              <section id="IFO2">
+                  <!--h1> This is 3rd IFO page </h1-->
+                <acronym><img src="Media/Images/titles/LIGO.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                  <div class="topictext">
+                    <p>The <mark>Laser Interferometer Gravitational-wave Observatory</mark> (LIGO for short), is a scientific project to use gravitational waves to learn about our Universe. </p>
+                    <br>
+                    <p>LIGO have two detectors in the USA, which are like giant versions of the model interferometer you see here. There are plans for more detectors across the world. </p>
+                  </div>
+                  <div class="topicimage">
+                    <td valign="top">
+                       <p><acronym><img src="Media/Images/detectors.png" alt="Image credit: Caltech/MIT/LIGO Lab. LIGO Detectors" width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                    </td>
+                  </div>
+              </section>
+              <section id="IFO3">
+                  <!--h1> THis is the 4th IFO PAge</h1-->
+                  <acronym><img src="Media/Images/titles/UoB.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                  <div class="topictext">
+                    <p>The University of Birmingham is a member of the LIGO Collaboration.
+                    Researchers from Birmingham designed and built parts for the detectors. They also analyse the gravitational-wave signals to learn about black holes and gravity itself.</p>
+                    <br>
+                    <p>The picture shows parts of the LIGO gravitational wave detector. Hundreds of these were made in Birmingham and are used in the detector today.</p>
+                  </div>
+                  <div class="topicimage">
+                    <td valign="top">
+                       <p><acronym><img src="Media/Images/BOSEMs.png" alt="Image credit: University of Birmingham. Componenents build in Birmingham." width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                    </td>
+                  </div>
+              </section>
+          </section>
+          <section>
+            <!-- Start of Gravity Pages -->
+              <section id="GWBH">
+                <!--h1> This is the Main Black Hole Page </h1-->
+                <acronym><img src="Media/Images/titles/Gravity.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                <div class="topictext">
+                  <p>Gravity is the force which causes apples to fall from trees, keeps the Moon orbiting around the Earth and the Earth orbiting the Sun.</p>
+                  <br>
+                  <p>Gravity is the most important force when studying space, black holes and gravitational waves (of course)! </p>
+                  <br>
+                  <p>What did Einstein think about gravity? Click <font color="#23A38F">next</font> to find out.</p>
+                </div>
+                <div class="topicimage">
+                    <td valign="top">
+                       <p><acronym><img src="Media/Images/apple.JPG" alt="Image credit: Christopher Berry, Hannah Middleton. Apple falling with gravity." width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                    </td>
+                </div>
+              </section>
+              <section id="GWBH1">
+                <!--h1> This is the 2nd Black Hole Page </h1-->
+                <acronym><img src="Media/Images/titles/EinsteinsGravity.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                  <div class="topictext">
+                    <p>Albert Einstein came up with his theory of general relativity in 1915, over 100 years ago.</p>
+                    <br>
+                    <p>He explained <mark>gravity</mark> as the curving of space. Space is curved by massive things, and objects move following this curvature.</p>
+                    <br>
+                    <p>Click <font color="#23A38F">next</font> to find out about black holes and gravitational waves.</p>
+                  </div>
+                  <div class="topicimage">
+                    <td valign="top">
+                       <p><acronym><img src="Media/Images/Einstein1921_crop.jpg" alt="Image credit: F Schmutzer. Einstein in 1921" width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                    </td>
+                </div>
+              </section>
+              <section id="GWBH2">
+                <!--h1> This is the 3rd Black Hole Page </h1-->
+                <acronym><img src="Media/Images/titles/BlackHoles.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                <div class="topictext">
+                  <p>Black holes were predicted by general relativity. They are regions of extremely strong gravity. Close to a black hole, gravity is so strong that nothing can escape, not even light! </p>
+                  <br>
+                  <p>Black holes can be born when massive stars, much bigger than our Sun, collapse.</p>
+                  <br>
+                  <p>Click <font color="#23A38F">next</font> to find out about gravitational waves.</p>
+                </div>
+                <div class="topicimage">
+                  <td valign="top">
+                    <p><acronym><img src="Media/Images/NASA_BH_cropcredit.png" alt="Image credit: NASA/JPL-Caltech. Black hole." width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                  </td>
+                </div>
+              </section> 
+              <section id="GWBH3">
+                <!--h1> This is the 4th Black Hole Page </h1-->
+                <acronym><img src="Media/Images/titles/GravitationalWaves.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                <div class="topictext">
+                  <p>Another prediction of general relativity are gravitational waves.</p>
+                  <br> 
+                  <p>When massive objects accelerate, the curvature of space changes. It takes time for these changes to move out, like ripples across a pond. These ripples in space are gravitational waves.</p>
+                </div>
+                <div class="topicimage">
+                  <td valign="top">
+                    <p><acronym><img src="Media/Images/gravwaves_highcontrast.png" alt="Image credit: Gravitational Wave Group University of Birmingham. Binary black hole and gravitational waves" width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                  </td>
+                </div>
+              </section>
+          </section>
+          <section>
+            <!-- Start of Detection Vid -->
+            <section id="Det">
+              <!--h1> This is the Main Detection Page </h1-->
+              <acronym><img src="Media/Images/titles/Discovery.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                <div class="topictext">
+                  <p>14 September 2015: The two LIGO detectors make the first direct observation of <mark>gravitational waves</mark>. </p>
+                  <br>
+                  <p>After 40 years of work on gravitational-wave detectors, we are able to confirm a prediction Einstein made 100 years ago and discover more about <mark>black holes</mark>.</p>
+                  <br>
+                  <p>Where did these gravitational waves come from? Click <font color="#23A38F">next</font> to find out.</p>                
+                </div>
+                <div class="topicimage">
+                  <td valign="top">
+                    <p><acronym><img src="Media/Images/waveform_labelled_offset.png" alt="Image credit: LIGO. First detection of gravitational waves." width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                  </td>
+                </div>
+            </section>
+            <section id="Det2">
+              <!--h1> This is the 2nd Detection Page </h1-->
+              <acronym><img src="Media/Images/titles/WhatWasTheSignal.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+              <div class="topictext">
+                  <p>The gravitational waves came from a binary <mark>black hole merger</mark>. This means that two black holes orbited each other, spiralled together and formed a single, larger black hole.</p>
+                  <br>
+                  <p>How big were the black holes? Click <font color="#23A38F">next</font> to find out and see what we can learn from gravitational waves.</p>
+                </div>
+                <div class="topicimage">
+                    <td valign="top">
+                       <p><acronym><img src="Media/Images/sxs_bbh_crop.png" alt="Image credit: SXS. Binary black hole simulation." width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                    </td>
+                </div>
+            </section>
+            <section id="Det3">
+              <!--h1> This is the 3rd Detection Page </h1-->
+              <acronym><img src="Media/Images/titles/TwoBHMergingTogether.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+                <p>
+                  <br>
+                  <acronym><img src="Media/Images/bh_timeline3_bkg.png"  width="100%" align="left" valign="centre" vspace="5" alt="Image credit: Hannah Middleton. Binary black hole merger timeline."</acronym></acronym>
+                </p>
+            </section>
+            <section id="Det4">
+              <!--h1> This is the 4th Detection Page </h1-->
+              <acronym><img src="Media/Images/titles/WhatDidWeLearn.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+              <div class="topictext">
+                <p>Gravitational waves are a brand new way to do astronomy. They've told us that not only do black holes really exist, but they exist in pairs which collide! These collisions emit gravitational waves exactly as Einstein predicted.</p> 
+                <br>
+                <p>Gravitational waves tell us things we never knew before, like where black holes are in the sky, and how heavy they are.</p>
+                </div>
+                <div class="topicimage">
+                    <td valign="top">
+                       <p><acronym><img src="Media/Images/gw150914_Sky.png" alt="Image credit: LIGO/Axel Mellinger. Location on the sky for the first gravitational wave detection." width="70%" align="right" valign="centre" vspace="5"</acronym></acronym></p>
+                    </td>
+                </div>
+            </section>
+            <section id="Det5">
+              <!--h1> This is the 4th Detection Page </h1-->
+              <acronym><img src="Media/Images/titles/WhatNext.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+              <div class="topictextthin">
+                <!--acronym title="Image credit: "><img src="Media/Images/future_detectors.png" alt="Image credit:" width="80%" align="centre" valign="centre" vspace="5"</acronym></acronym-->
+                <p>Colliding black holes are not the only objects which create gravitational waves. We can learn more about our Universe by searching for gravitational waves created by different objects as well.</p> 
+                </div>
+                <div class="topicimagewide">
+                    <td valign="top">
+                       <p><acronym><img src="Media/Images/future_detectors.png" alt="Image credit: Caltech/MIT/LIGO Lab. Plans for future detectors." width="85%" align="left" valign="centre" vspace="5"</acronym></acronym></p>
+                    </td>
+                </div>
+                <div class="topictextwhole">
+                      <p>In the future, there are plans for more gravitational-wave detectors around the world and even in space!</p>
+                </div>
+            </section> 
+          </section>
+          <section>
+            <!-- Start of the Quiz -->
+            <section id="Quiz">
+              <!--h1> This is the First Question Page </h1-->
+            <acronym><img src="Media/Images/titles/Question1.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+            <div class="question">
+              <p>Question 1: LIGO's first observation of gravitational waves came from where?</p>
+              <p class="qinstruction"> Click on an option to reveal the answer </p>
+              <div class="qoptions">
+                <br><br>
+                <p><ul>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">A star collapsing to form a black hole</li>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">The Big Bang</li>
+                  <li class="option" onclick="quizController(true,'Next')" onmouseover="hoverControl('none')">Two black holes merging together</li>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">A rapidly spinning star</li>
+                </ul></p>
+              </div>
+            </div>
+            </section>
+            
+            <section id="Quiz2">
+              <acronym><img src="Media/Images/titles/Question2.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+              <!--h1> This is the 3rd Quiz Page </h1-->
+              <div class="question">
+              <p>Question 2: Where is the force of gravity strongest?</p>
+              <p class="qinstruction"> Click on an option to reveal the answer </p>
+              <div class="qoptions">
+                <br></br>
+                <p><ul>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">Close to a light object</li>
+                  <li class="option" onclick="quizController(true,'Next')" onmouseover="hoverControl('none')">Close to a massive object</li>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">Far from a massive object</li>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">Far from a light object</li>
+                </ul></p>
+              </div>
+            </div>
+            </section>
+            <section id="Quiz3">
+              <acronym><img src="Media/Images/titles/Question3.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+              <!--h1> This is the 3rd Quiz Page </h1-->
+              <div class="question">
+              <p>Question 3: What is the effect of a passing gravitational wave?</p>
+              <p class="qinstruction"> Click on an option to reveal the answer </p>
+              <div class="qoptions">
+                <br></br>
+                <p><ul>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">To create light</li>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">To make things heavier</li>
+                  <li class="option" onclick="quizController(true,'Next')" onmouseover="hoverControl('none')">To stretch and squeeze space</li>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">To produce awesome surfing</li>
+                </ul></p>
+              </div>
+            </div>
+            </section>
+            <section id="Quiz4">
+              <acronym><img src="Media/Images/titles/Question4.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+              <!--h1> This is the 4th Quiz Page </h1-->
+              <div class="question">
+              <p>Question 4: LIGO's gravitational-wave detectors are larger than our model, how long are their arms?</p>
+              <p class="qinstruction"> Click on an option to reveal the answer </p>
+              <div class="qoptions">
+                <br></br>
+                <p><ul>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">30 metres (as long as a blue whale)</li>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">800 metres (the height of the Burj Khalifa)</li>
+                  <li class="option" onclick="quizController(false,'Next')" onmouseover="hoverControl('none')">0.00000000005 metres (the size of a hydrogen atom)</li>
+                  <li class="option" onclick="quizController(true,'Next')" onmouseover="hoverControl('none')">4000 metres (the distance between the Bull Ring and the University of Birmingham)</li>
+                </ul></p>
+              </div>
+            </div>
+            </section>
+          </section>
+          <section>
+            <!-- Start of Answer pages -->
+              <section id="Answer1">
+              <!--h1> This is the 2nd Quiz Page </h1-->
+            <acronym><img src="Media/Images/titles/Answer1.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+
+            <div class="question">
+              <p>Question 1: LIGO's first observation of gravitational waves came from where?</p>
+              <div class="qoptions">
+                <br></br>
+                <p><ul>
+                  <li>A star collapsing to form a black hole X</li>
+                  <li>The Big Bang X</li>
+                  <li class="answer">Two black holes merging together</li>
+                  <li>A rapidly spinning star X</li>
+                </ul></p>
+              </div>
+            </div>
+            <div class="qanswer">
+              <p class="answerexplanation">Answer: The first detection was of two black holes merging together, but we might see gravitational waves from the other objects in the future.</p>
+            </div>
+            </section>
+            <section id="Answer2">
+              <! Answer page 2 -->
+            <acronym><img src="Media/Images/titles/Answer2.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+            <div class="question">
+              <p>Question 2: Where is the force of gravity strongest?</p>
+              <div class="qoptions">
+                <br></br>
+                <p><ul>
+                  <li>Close to a light object X</li>
+                  <li class="answer">Close to a massive object</li>
+                  <li>Far from a masive object X</li>
+                  <li>Far from a light object X</li>
+                </ul></p>
+              </div>
+            </div>
+            <div class="qanswer">
+              <p class="answerexplanation">Answer: Close to a massive object, the force of gravity is strongest. It depends on both mass and distance. Black holes have the strongest gravity as all their mass is squeezed into a tiny volume.</p>
+            </div>
+            </section>
+            <section id="Answer3">
+              <! Answer page 3--->
+            <acronym><img src="Media/Images/titles/Answer3.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+            <div class="question">
+              <p>Question 3: What is the effect of a passing gravitational wave?</p>
+              <div class="qoptions">
+                <br></br>
+                <p><ul>
+                  <li>To create light X</li>
+                  <li>To make things heavier X</li>
+                  <li class="answer">To stretch and squeeze space</li>
+                  <li>To produce awesome surfing X</li>
+                </ul></p>
+              </div>
+            </div>
+            <div class="qanswer">
+              <p class="answerexplanation">Answer: Gravitational waves stretch and squeeze space. They are ripples in space which change distances between objects by a tiny amount.</p>
+            </div>
+            </section>
+            <section id="Answer 4">
+              <!Answer Page 4 -->
+            <acronym><img src="Media/Images/titles/Answer4.png"  height="70px" align="left" vspace="5"</acronym></acronym>
+            <div class="question">
+              <p>Question 4: LIGO's gravitational-wave detectors are larger than our model, how long are their arms?</p>
+              <div class="qoptions">
+                <br></br>
+                <p><ul>
+                  <li>30 metres (as long as a blue whale) X</li>
+                  <li>800 metres (the height of the Burj Khalifa) X</li>
+                  <li>0.00000000005 metres (the size of a hydrogen atom) X</li>
+                  <li class="answer">4000 metres (the distance between the Bullring and the University of Birmingham)</li>
+                </ul></p>
+              </div>
+            </div>
+            <div class="qanswer">
+              <p class="answerexplanation">Answer: Both of the LIGO detectors have two 4000-metre arms.</p>
+            </div>
+            </section>
+          </section>
+          <section>
+            <! Here be the Quiz Summary Page! If Needed --> 
+            <img class="score0Image" onclick= "controlPageNav('right')" src="Media/Images/Einstein-0-4.png"></img>
+            <img class="score1Image" onclick= "controlPageNav('right')" src="Media/Images/Einstein-1-4.png"></img>
+            <img class="score2Image" onclick= "controlPageNav('right')" src="Media/Images/Einstein-2-4.png"></img>
+            <img class="score3Image" src="Media/Images/Einstein-3-4.png"></img>
+            <img class="score4Image" src="Media/Images/Einstein-4-4.png"></img>
+          </section>
+      </div>
+    </div>
+
+
+  <script>
+  //We now need to set the properties of reveal.js, these can be changed but check the reveal.js documentation before editing
+  Reveal.initialize({
+    // Factor of the display size that should remain empty around the content
+
+    width: "100%",
+    height: "80%",
+
+    // Display controls in the bottom right corner
+    controls: false,
+
+    // Display a presentation progress bar
+    progress: false,
+
+    // Display the page number of the current slide
+    slideNumber: false,
+
+    // Push each slide change to the browser history
+    history: false,
+
+    // Enable keyboard shortcuts for navigation
+    keyboard: false,
+
+    // Enable the slide overview mode
+    overview: false,
+
+    // Vertical centering of slides
+    center: false,
+
+    // Enables touch navigation on devices with touch input
+    touch: false,
+
+    // Loop the presentation
+    loop: true,
+
+    // Change the presentation direction to be RTL
+    rtl: false,
+
+    // Turns fragments on and off globally
+    fragments: true,
+
+    // Flags if the presentation is running in an embedded mode,
+    // i.e. contained within a limited portion of the screen
+    embedded: false,
+
+    // Flags if we should show a help overlay when the questionmark
+    // key is pressed
+    help: false,
+
+    // Flags if speaker notes should be visible to all viewers
+    showNotes: false,
+
+    // Number of milliseconds between automatically proceeding to the
+    // next slide, disabled when set to 0, this value can be overwritten
+    // by using a data-autoslide attribute on your slides
+    autoSlide: 0,
+
+    // Stop auto-sliding after user input
+    autoSlideStoppable: true,
+
+    // Enable slide navigation via mouse wheel
+    mouseWheel: false,
+
+    // Hides the address bar on mobile devices
+    hideAddressBar: true,
+
+    // Opens links in an iframe preview overlay
+    previewLinks: false,
+
+    // Transition style
+    transition: 'fade', // none/fade/slide/convex/concave/zoom
+
+    // Transition speed
+    transitionSpeed: 'default', // default/fast/slow
+
+    // Transition style for full page slide backgrounds
+    backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+
+    // Number of slides away from the current that are visible
+    viewDistance: 3,
+
+    // Parallax background image
+    parallaxBackgroundImage: '', // e.g. "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'"
+
+    // Parallax background size
+    parallaxBackgroundSize: '', // CSS syntax, e.g. "2100px 900px"
+
+    // Number of pixels to move the parallax background per slide
+    // - Calculated automatically unless specified
+    // - Set to 0 to disable movement along an axis
+    parallaxBackgroundHorizontal: null,
+    parallaxBackgroundVertical: null
+
+});
+  </script>
+
+  <script>
+  // This is the quiz controller, what we check is is the correct answer been chosen, if so we add one to the score and update the HTML element
+  var quizController = function(answer,msg) {
+    if (answer==true) {
+      // console.log(answer);
+      score++;
+      document.getElementsByClassName('scoreCounter')[0].innerHTML=score;
+      document.getElementsByClassName('correctTick')[0].style.display='block';
+    }
+    if (answer==false){
+      document.getElementsByClassName('wrongTick')[0].style.display='block';
+    }
+    // We now need to tell the page that we want to go to another detail page, and send the message of where we've just come from
+    detailPageNav(msg);
+  }
+  // Gets where abouts we are according to reveal.
+  var getPositon = function() {
+    return Reveal.getIndices();
+  }
+  // The main page control function
+  var controlPageNav =function(param) {
+    // We pass in a paramater from the element that we changed, this governs how we should proceed here
+    // Need to make sure page changes aren't forbidden
+    // if (Locked==false) {
+      // Where am I?
+      var slidePos= getPositon();
+      var h=slidePos.h;
+      var v= slidePos.v;
+      hidePreview();
+      // Depending on what page that we're on, we need to do different things.
+      // Just looking at the code, you'll wonder why its a switch here, well it was used at some stage
+      // and may be in the future.
+      switch(h) {
+        case 0:
+        //home
+        // Gotta destroy the quiz incase its still here.
+        destroyQuiz();
+          homeNav(param);
+          break;
+        case 6:
+          //summary
+          homeNav(param);
+          destroyQuiz();
+          break;
+        default:
+          toHome(param);
+          destroyQuiz();
+          // console.log(param)
+          break;
+      }
+    //  }
+  }
+  // Here is the home navigation, it looks clunky (it is!) but it make sure that all elements are removed and displayed when needed depending on what button we've just clicked.
+  var homeNav = function(param) {
+    switch(param){
+            case 'top':
+              document.location.href="#/1/0";
+              showPageCounter('detail');
+              controller('IFO');
+              document.getElementsByClassName('pageOutOf')[0].innerHTML="/5";
+              hideButtons();
+              displayClock();
+              lastVideoh=1;
+              break;
+            case 'bottom':
+              document.location.href="#/3/0";
+              showPageCounter('detail');
+              controller('Detection');
+              document.getElementsByClassName('pageOutOf')[0].innerHTML="/5";
+              hideButtons();
+              displayClock();
+              lastVideoh=3;
+              break;
+            case 'right':
+              document.location.href="#/2/0";
+              showPageCounter('detail');
+              controller('GWBH');
+              document.getElementsByClassName('pageOutOf')[0].innerHTML="/4";
+              hideButtons();
+              displayClock();
+              lastVideoh=2;
+              break;
+            case 'left':
+              document.location.href="#/4/0";
+              controller('Quiz');
+              hideButtons();
+              showPageCounter('quiz')
+              document.getElementsByClassName('timerText')[0].style.display='inline-block';
+              document.getElementById('clockdiv').style.display='inline-block';
+              document.getElementsByClassName('nextButton')[0].style.display='none';
+              document.getElementsByClassName('previousButton')[0].style.display='none';
+              score=0;
+              if (Locked==false) {
+                document.getElementById('clockdiv').style.display='none';
+                document.getElementsByClassName('timerText')[0].style.display='none';
+              }
+              document.getElementsByClassName('scoreCounter')[0].style.display='inline';
+              document.getElementsByClassName('scoreCounter')[0].innerHTML=score;
+              document.getElementsByClassName('scoreText')[0].style.display='inline';
+              document.getElementsByClassName('scoreOutOf')[0].style.display='inline';
+              break;
+            case 'Home':
+              toHome(param);
+              lastVideoh=0;
+              break;
+          }
+  }
+// This shows the page counter and accociated text, based on what page we want to go to. 
+// It should be passed strings of detail, quiz, home depending on where you want to go.
+  var showPageCounter= function(pageType) {
+    if (pageType=='detail') {
+      document.getElementsByClassName('nextButton')[0].style.display='block';
+      document.getElementsByClassName('previousButton')[0].style.display='block';
+      // if (Locked==false) {
+      //     document.getElementsByClassName('playvideo')[0].style.display='block';        
+      // }
+      if (Locked==true) {
+        document.getElementsByClassName('timerText')[0].style.dipslay='block';
+        document.getElementById('clockdiv').style.display='block';
+      }
+      document.getElementsByClassName('questionText')[0].style.display='none';
+      document.getElementsByClassName('pageNumText')[0].style.display='inline-block';
+      document.getElementsByClassName('pageOutOf')[0].style.display='inline-block';
+      document.getElementsByClassName('pageCounter')[0].innerHTML=1;
+      document.getElementsByClassName('pageCounter')[0].style.display='inline-block';
+    } 
+    if (pageType=='quiz') {
+      document.getElementsByClassName('scoreCounter')[0].style.display='inline-block';
+      document.getElementsByClassName('scoreText')[0].style.display='inline-block';
+      document.getElementsByClassName('questionCounter')[0].innerHTML='1';
+      document.getElementsByClassName('questionCounter')[0].style.display='inline-block';
+      document.getElementsByClassName('questionText')[0].style.display='inline-block';
+      document.getElementsByClassName('questionOutOf')[0].style.display='inline-block';
+      document.getElementsByClassName('playvideo')[0].style.display='none';
+      document.getElementsByClassName('replayvideo')[0].style.display='none';
+    }
+
+    if (pageType=='home') {
+      // This is unused but functional
+    }
+  } 
+  // Detail page navigation.
+  var detailPageNav= function(msg) {
+    slidePos=getPositon();
+    h=slidePos.h;
+    v=slidePos.v;
+    // As we've got 5 pages on these bits
+    if(h==1 || h==3){
+      // We want to go next, so by default we just change the page by 1, otherwise we need to set the page to 0 if we're on the last one
+      if (msg=='Next') {
+        switch(v){
+          case 4:
+            v=0;
+            var pageIndex=changeControlPage(h,v);
+            document.location.href=pageIndex;
+            document.getElementsByClassName('pageCounter')[0].innerHTML=(v+1);
+            break;
+          default:
+            v++;
+            var pageIndex=changeControlPage(h,v);
+            document.location.href=pageIndex;
+            document.getElementsByClassName('pageCounter')[0].innerHTML=(v+1);
+            break;  
+          }
+        }
+        // If we're going to the previous page we need to the opposite of the next statements
+      if (msg=='Previous') {
+        switch(v){
+        case 0:
+          //set this to 2 if theres 3 slides etc.
+          v=4;
+          var pageIndex=changeControlPage(h,v);
+          document.location.href=pageIndex;
+          document.getElementsByClassName('pageCounter')[0].innerHTML=(v+1);
+          break;
+        default:
+          v=v-1;
+          var pageIndex=changeControlPage(h,v);
+          document.location.href=pageIndex;
+          document.getElementsByClassName('pageCounter')[0].innerHTML=(v+1);
+          break;
+      }
+    }
+  }
+  // Needed as gravity only has 4 slides, functionality same as h==1 and h==3 cases above.
+  if (h==2) {
+    if (msg=='Next') {
+        switch(v){
+          case 3:
+            v=0;
+            var pageIndex=changeControlPage(h,v);
+            document.location.href=pageIndex;
+            document.getElementsByClassName('pageCounter')[0].innerHTML=(v+1);
+            break;
+          default:
+            v++;
+            var pageIndex=changeControlPage(h,v);
+            document.location.href=pageIndex;
+            document.getElementsByClassName('pageCounter')[0].innerHTML=(v+1);
+            break;  
+          }
+        }
+      if (msg=='Previous') {
+        switch(v){
+        case 0:
+          //set this to 2 if theres 3 slides etc.
+          v=3;
+          var pageIndex=changeControlPage(h,v);
+          document.location.href=pageIndex;
+          document.getElementsByClassName('pageCounter')[0].innerHTML=(v+1);
+          break;
+        default:
+          v=v-1;
+          var pageIndex=changeControlPage(h,v);
+          document.location.href=pageIndex;
+          document.getElementsByClassName('pageCounter')[0].innerHTML=(v+1);
+          break;
+      }
+    }
+  }
+  // This is the quiz controller, its seperate as we need to not do linear page changes here, we have to effectively zig zag between both answer and question pages.
+  if(h==4){
+    if(msg=='Next'){
+      switch(v){
+        case 2: // Need to disable the next button as we'll be going to the last answer page
+          var pageIndex=changeControlPage(h+1,v);
+          document.location.href=pageIndex;
+          document.getElementsByClassName('nextButton')[0].style.display='block';
+          break;
+        default:
+          var pageIndex=changeControlPage(h+1,v);
+          document.getElementsByClassName('nextButton')[0].style.display='block';
+          document.location.href=pageIndex;
+          break;
+      }
+    }
+  }
+  // This means we're on an answer page so we need to go to a question page, if we're on the last answer page then we should go to the summary page instead and clear the relevant elements. 
+  if(h==5){
+    if(msg='Next'){
+      switch(v){
+        case 3:
+          // This is the end of the quiz
+          document.getElementsByClassName('nextButton')[0].style.display='none';
+          document.getElementsByClassName('wrongTick')[0].style.display='none';
+          document.getElementsByClassName('correctTick')[0].style.display='none';
+          document.getElementsByClassName('questionCounter')[0].innerHTML=(v+2);
+          getEinstein();
+          document.location.href="#/6/0"; // to the summary page!
+          document.getElementsByClassName('questionCounter')[0].style.display='none';
+          document.getElementsByClassName('questionText')[0].style.display='none';
+          document.getElementsByClassName('questionOutOf')[0].style.display='none';
+
+          break;
+        default:
+          // Still got more questions to go, so lets itterate the page counter and remove any next buttons 
+          document.getElementsByClassName('nextButton')[0].style.display='none';
+          document.getElementsByClassName('wrongTick')[0].style.display='none';
+          document.getElementsByClassName('correctTick')[0].style.display='none';
+          document.getElementsByClassName('questionCounter')[0].innerHTML=(v+2);
+          var pageIndex=changeControlPage(h-1,v+1);
+          document.location.href=pageIndex;
+          break;
+      }
+    }
+  }
+}
+// Returns a string pageIndex that allows page changes depending on the passed through page indicies
+  var changeControlPage= function(h,v) {
+      var Hor=h.toString();
+      var Ver=v.toString();
+      var pageIndex="#/"+Hor+"/"+Ver;
+      return pageIndex;
+    }
+
+  var hoverControl = function(param) {
+    // need to do something when we hover over an element. 
+    // To do this get the active element, and then highlight it and play a sounds.
+    // on none then make sure that everything goes back to how it was. 
+    // We choose to not display the hometext as this annoyingly sticks when moving detail pages
+    document.getElementsByClassName('hometext')[0].style.display='none';
+    switch(param) {
+      case 'top':
+        document.getElementsByClassName('topPreview')[0].style.display='block';
+        break;
+      case 'right':
+        document.getElementsByClassName('rightPreview')[0].style.display='block';
+        break;
+      case 'bottom':
+        document.getElementsByClassName('bottomPreview')[0].style.display='block';
+        break;
+      case 'left':
+        document.getElementsByClassName('leftPreview')[0].style.display='block';
+        break;
+        case 'default':
+        break;
+    }
+    // If we're not playing a video, then we should make a chirp to compete with the robot
+    if(Locked==false){
+    var snd = new Audio("/Media/audio/chirp.wav"); // buffers automatically when created
+    snd.volume=0.05; // Use this to control the volume playback
+    snd.play();
+    }
+  }
+  // We need to hide the preview now if we're on the home screen
+  var hidePreview = function (){
+    slidePos =getPositon();
+    h=slidePos.h;
+    if (h==0) {
+      document.getElementsByClassName('hometext')[0].style.display='none';
+      document.getElementsByClassName('topPreview')[0].style.display='none';
+      document.getElementsByClassName('bottomPreview')[0].style.display='none';
+      document.getElementsByClassName('rightPreview')[0].style.display='none';
+      document.getElementsByClassName('leftPreview')[0].style.display='none';      
+    }
+
+  }
+  // This section is a hacky workaroud to some limitations of using reveal for this exhibit. 
+  // Basically it doesn't allow you, through some css burried somewhere to have images on the edges of screens
+  // So, we've had to create a bunch of elements before Reveals HTML and then show and hide them as appropriate.
+  // Hides buttons (on the home screen)
+
+  // hideButtons is the function used to go from the home screen to another screen
+  var hideButtons= function() {
+      sleep(100); // We sleep to make sure that the movement is smooth and then we get rid of a lot of elements
+      document.getElementsByClassName('topNav')[0].style.display ='none';
+      document.getElementsByClassName('bottomNav')[0].style.display ='none';
+      document.getElementsByClassName('rightNav')[0].style.display ='none';
+      document.getElementsByClassName('leftNav')[0].style.display='none';
+      document.getElementsByClassName('hometext')[0].style.display='none';
+      document.getElementsByClassName('homeButton')[0].style.display='block';
+      // document.getElementsByClassName('detailPageNav')[0].style.display='block';
+      }
+// Displays the buttons (this is a mess)
+// Going from any detail page to the home page. 
+  var showButtons = function() {
+      sleep(100);
+      document.getElementsByClassName('nextButton')[0].style.display='none';
+      document.getElementsByClassName('previousButton')[0].style.display='none';
+      document.getElementsByClassName('correctTick')[0].style.display='none';
+      document.getElementsByClassName('wrongTick')[0].style.display='none';
+      document.getElementsByClassName('homeButton')[0].style.display='none';
+      document.getElementsByClassName('topNav')[0].style.display='block';
+      document.getElementsByClassName('bottomNav')[0].style.display='block';   
+      document.getElementsByClassName('rightNav')[0].style.display='block';
+      document.getElementsByClassName('leftNav')[0].style.display='block';
+      document.getElementsByClassName('hometext')[0].style.display='block';
+      // document.getElementsByClassName('detailPageNav')[0].style.display='none';
+      if (Locked==true) {
+        document.getElementById('clockdiv').style.display='none';
+        document.getElementsByClassName('timerText')[0].style.display='none';
+      }
+      if (Locked==false) {
+        document.getElementById('clockdiv').style.display='none';
+        document.getElementsByClassName('timerText')[0].style.display='none';
+      }
+      document.getElementsByClassName('replayvideo')[0].style.display='none';
+      document.getElementsByClassName('playvideo')[0].style.display='none';
+      document.getElementsByClassName('scoreCounter')[0].style.display='none';
+      document.getElementsByClassName('scoreText')[0].style.display='none';
+      document.getElementsByClassName('scoreOutOf')[0].style.display='none';
+      document.getElementsByClassName('questionText')[0].style.display='none';
+      document.getElementsByClassName('questionOutOf')[0].style.display='none';
+  }
+// We're going home!
+  var toHome= function(msg) {
+    if(msg=='Home') {
+      document.location.href="#/Home";
+      showButtons();
+      hideSummary();
+      removePageCounter();
+      hideVideoButtons();
+      document.getElementsByClassName('questionText')[0].style.display='none';
+      document.getElementsByClassName('hometext')[0].style.display='block';
+      document.getElementsByClassName('topPreview')[0].style.display='none';
+      document.getElementsByClassName('bottomPreview')[0].style.display='none';
+      document.getElementsByClassName('rightPreview')[0].style.display='none';
+      document.getElementsByClassName('leftPreview')[0].style.display='none';  
+    }
+  }
+  var hideVideoButtons = function() {
+    document.getElementsByClassName('playvideo')[0].style.display='none';
+    document.getElementsByClassName('replayvideo')[0].style.display='none';
+  }
+var removePageCounter = function() {
+  document.getElementsByClassName('questionText')[0].style.display='none';
+  document.getElementsByClassName('questionCounter')[0].style.display='none';
+  document.getElementsByClassName('questionOutOf')[0].style.display='none';
+  document.getElementsByClassName('pageNumText')[0].style.display='none';
+  document.getElementsByClassName('pageCounter')[0].style.display='none';
+  document.getElementsByClassName('pageOutOf')[0].style.display='none';
+}
+  var videoPlayer = function(videoState) {
+    if (videoState=='Replay') {
+      h=lastVideoh;
+      document.getElementById('clockdiv').style.display='inline-block';
+      document.getElementsByClassName('replayvideo')[0].style.display='none';
+      document.getElementsByClassName('playvideo')[0].style.display='none'
+      document.getElementsByClassName('timerText')[0].style.display='inline-block';
+      playtheVideo(h);
+    }
+  }
+  var displayClock=function(){
+      document.getElementsByClassName('playvideo')[0].style.display='none';
+      document.getElementById('clockdiv').style.display='inline-block';
+      document.getElementsByClassName('timerText')[0].style.display='inline-block';
+  }
+  var playtheVideo = function(h) {
+    switch(h) {
+        case 0:
+          // We're on the home page so we don't want videos playing
+          controller('Home');
+          lastVideoh=0;
+          break;
+        case 1:
+          // We're on the IFO Page now
+          controller('IFO');
+          lastVideoh=1;
+          break;
+        case 2:
+          // We're on the Grav Waves Page
+          controller('GWBH');
+          lastVideoh=2;
+          break;
+        case 3:
+          // We're on the Detection page
+          controller('Detection');
+          lastVideoh=3;
+          break;
+        case 4:
+          // WE're on the Quiz
+          controller('Quiz');
+          lastVideoh=4;
+          break;
+        case 5: 
+          // Answers (currently doesn't do anything)
+          break;
+        case 6:
+          // Summary (currently deosn't do anything)
+          break;
+        default:
+          console.log('Invalid Video Requsted')
+          break;
+      }
+  }
+  </script>
+  <!-- Now we need to load our stylesheet so it loads after reveal so we can override some of its settings. -->
+<link rel="stylesheet" href="css/control3.css">
+</body>
+<!-- Functions here rely on HTML elements having already been created, putting them earlier in the code will throw nasty undefined errors as the element, quite rightly, doesn't exist yet. -->
+<script>
+// Here we add an event handler for clicking, it sends a request to the server asking for the PZT's to be moved using the stadard waveform, if you want a fancier waveform give the msg a different name and then write the server side stuff to deal with it, othwerwise you'll confuse everything.  
+  document.addEventListener("click", function() {
+    msg='standard';
+    console.log('client change arduinoControl')
+    socket.emit('arduinoControl',msg);
+    resetTimer();
+  });
+  // if we get a VideoLength message then we need to set the duration of the video to that plus two seconds for smoothness. 
+    socket.on('VideoLength', function(msg){
+    duration=msg+1;
+    // We set a deadline for the video to finish and pass this to the clock element.
+    var deadline = new Date(Date.parse(new Date()) + duration*1000);
+    initializeClock("clockdiv", deadline);
+   });
+// This event listner is only used as part of the timer function, which the foundation is here but need a better way for it to be implemented before it goes into production
+  document.addEventListener("mousemove", function(){
+    resetTimer();
+  })
+// Has the video finished? this passes in the endtime of the video and then works out based on the current date have we finished or not and returns both the total time, minutes and seconds for passing to the clock
+function getTimeRemaining(endtime) {
+  var t = Date.parse(endtime) - Date.parse(new Date());
+  var seconds = Math.floor((t / 1000) % 60);
+  var minutes = Math.floor((t / 1000 / 60) % 60);
+  return {
+    'total': t,
+    'minutes': minutes,
+    'seconds': seconds
+  };
+}
+// We now need to initalise the clock, so we set the minutes and seconds span.
+function initializeClock(id, endtime) {
+  var clock = document.getElementById(id);
+  var minutesSpan = clock.querySelector('.minutes');
+  var secondsSpan = clock.querySelector('.seconds');
+  // console.log('Initialized');
+// We now need to update the clock and update the HTML live.
+  function updateClock() {
+    var t = getTimeRemaining(endtime);
+    minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
+    secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+
+    if (t.total <= 0) {
+      clearInterval(timeinterval);
+      minutesSpan.innerHTML=('00');
+      secondsSpan.innerHTML=('00');
+      document.getElementById('clockdiv').style.display='none';
+      Locked=false;
+      videoButtonController();
+    }
+  }
+  // This ensures that we loop and always update the clock if the timer hasn't reached zero.
+  updateClock();
+  // means the clock only updates every second
+  var timeinterval = setInterval(updateClock, 1000);
+}
+// Need to get rid of the image, so rather than being clever we'll just set all the elements to not be displayed
+function hideSummary(){
+  document.getElementsByClassName('score0Image')[0].style.display='none';
+  document.getElementsByClassName('score1Image')[0].style.display='none';
+  document.getElementsByClassName('score2Image')[0].style.display='none';
+  document.getElementsByClassName('score3Image')[0].style.display='none';
+  document.getElementsByClassName('score4Image')[0].style.display='none';
+}
+// gets rid of any quiz related text when we don't want it.
+function destroyQuiz() {
+  document.getElementsByClassName('questionText')[0].style.display='none';
+  document.getElementsByClassName('scoreCounter')[0].style.display='none';
+  document.getElementsByClassName('scoreOutOf')[0].style.display='none';
+  document.getElementsByClassName('scoreText')[0].style.display='none';
+}
+// Calls Einstein (or at least his picutre) to tell the user what score that they've got.
+function getEinstein() {
+  console.log(score);
+  switch(score) {
+    case 0:
+      document.getElementsByClassName('score0Image')[0].style.display='block';
+      break;
+    case 1:
+      document.getElementsByClassName('score1Image')[0].style.display='block';
+      break;
+    case 2:
+      document.getElementsByClassName('score2Image')[0].style.display='block';
+      break;
+    case 3:
+      document.getElementsByClassName('score3Image')[0].style.display='block';
+      break;
+    case 4:
+      document.getElementsByClassName('score4Image')[0].style.display='block';
+      break;
+  }
+
+}
+
+function resetTimer() {
+  clearInterval(timeoutInterval);
+  var timeOutDuration=3*60;
+  var timeOutDate = new Date(Date.parse(new Date()) + timeOutDuration*1000);
+  initialiseTimeout(timeOutDate);
+}
+
+function initialiseTimeout(timeOutDate) {
+
+  function updateTimeout() {
+    var t1 =getTimeoutRemaining(timeOutDate);
+    // console.log(t1);
+    if(t1<=0) {
+      clearInterval(timeoutInterval);
+      resetPageStates();
+    }
+  }
+  // means the clock only updates every second
+  timeoutInterval = setInterval(updateTimeout, 1000);
+}
+
+function getTimeoutRemaining(timeOutDate) {
+  var t1 = Date.parse(timeOutDate) - Date.parse(new Date());
+  return t1;
+}
+
+function resetPageStates() {
+  socket.emit('PageRequest','Home');
+  toHome('Home');
+}
+
+function videoButtonController() {
+  var currentPosition = getPositon();
+  hCurrent=currentPosition.h;
+  console.log(hCurrent);
+  console.log(lastVideoh);
+  if (lastVideoh==hCurrent) {
+    document.getElementsByClassName('replayvideo')[0].style.display='block';
+    console.log('triggered replay');
+  }
+  else if(lastVideoh!=hCurrent && hCurrent!=0 && hCurrent!=4 && hCurrent!=5 && hCurrent!=6) {
+    document.getElementsByClassName('playvideo')[0].style.display='block';
+    console.log('triggered play');
+  }
+}
+
+</script>
+
+<script>
+// Experimental section to get feedback. 
+
+// Todo: Need to count number of clicks. 
+// Time used, lets say that things will be used, there needs 
+// To be a timer for during the exhibit - active time. Mouse clicks etc. 
+// 
+// Number of timeouts
+// 
+
+
+</script>
+</html>
+<!-- End of Document -->

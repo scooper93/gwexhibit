@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<!--This just sets up the page config - shouldn't need to be changed -->
+		<meta charset"utf-8">
+		<title>Michelson Exhibit</title>
+		<neta name="description" content="An exmaple of the gui that can be used for the michelson display project">
+		<meta name="author" content="Sam Cooper">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		
+		<!-- These are the stylesheets (the themes for the site)-->
+		<link rel="stylesheet" href="/reveal/css/reveal.css">
+		<link rel="stylesheet" href="reveal/css/theme/white.css" id="theme">
+		<link rel="stylesheet" href="/reveal/lib/css/zenburn.css"
+		<!-- Code syntax highlighting -->
+	 <script src="/socket.io/socket.io.js"></script>
+	 <script src="/js/jquery.min.js"></script>
+	<script>
+		// Event listner for page requests
+	  var socket = io();
+	  			socket.on('PageRequest', function (msg) {
+				console.log('Got command: ' + msg);
+				switch (msg) {
+					case 'Home':
+						document.location.href='/projector.html#/Home';
+						break;
+					case 'Gravity':
+						document.location.href='/projector.html#/Gravity';
+						var vid = document.getElementById("GravityVid");
+						setVideoTime(vid);
+						break;
+					case 'GW':
+						document.location.href='/projector.html#/GW';
+						var vid = document.getElementById("GWVid");
+						setVideoTime(vid);
+						break;
+					case 'BlackHole':
+						document.location.href='/projector.html#/BlackHole';
+						var vid = document.getElementById("BHVid");
+						setVideoTime(vid);
+						break;
+					case 'Laser':
+						document.location.href='/projector.html#/Laser';
+						var vid = document.getElementById("LaserVid");
+						setVideoTime(vid);
+						break;
+					case 'IFO':
+						document.location.href='/projector.html#/IFO';
+						var vid = document.getElementById("IFOVid");
+						setVideoTime(vid);
+						break;
+					case 'How':
+						document.location.href='/projector.html#/How';
+						var vid = document.getElementById("HowVid");
+						setVideoTime(vid);
+						break;
+					case 'LIGO':
+						document.location.href='/projector.html#/LIGO'
+						var vid = document.getElementById("LigoVid");
+						setVideoTime(vid);
+						break;
+					case 'Detection':
+						document.location.href='/projector.html#/Detection'
+						var vid = document.getElementById("DetectionVid");
+						setVideoTime(vid);
+						break;
+				}
+			});
+
+	  function setVideoTime(vid) {
+  		console.log(vid);
+		vid.currentTime=0;
+		vid.play();
+		lockControl(vid,'Locked');
+	  	}
+	</script>
+
+	<script>var socket= io();</script>
+	<body>
+		<script type="text/javascript">
+		function lockControl(elmt,msg) {
+			console.log(msg);
+			var socket= io();
+			socket.emit('ButtonControl',msg);
+		}
+		</script>
+		<style>
+			#container {
+			    margin: 0px auto;
+			    width: 500px;
+			    height: 375px;
+			}
+			#videoElement {
+			    width: 500px;
+			    height: 375px;
+			    border: 1px solid #000
+			}
+		</style>
+		<script>
+		var video = document.querySelector("#videoElement");
+		 
+		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+		 
+		if (navigator.getUserMedia) {       
+		    navigator.getUserMedia({video: true}, handleVideo, videoError);
+		}
+		 
+		function handleVideo(stream) {
+		    video.src = window.URL.createObjectURL(stream);
+		}
+		 
+		function videoError(e) {
+		    // do something
+		}
+		</script>
+		<div class="reveal">
+			<!-- *********** This is where the slide content should be stored ********-->
+			<div class="slides">
+					<!--All content for the Projector Screen should be placed here -->
+					<section id='Home'>
+						<h1> Home slide </h1>
+							<p>This is a better dummy page</p>
+							<!-- Here should be some michelson breathing and maybe stretch and squash  (slide 0)-->]
+
+								</head>
+								<body>
+								<div id="container">
+								    <video autoplay="true" id="videoElement">
+								    </video>
+								</div>
+
+					</section>
+					<section id='Gravity'>
+						<!-- Gravity Slide (slide 1) --> 
+						<p>THis is a new slide</p>
+						<div class="VideoContainer">
+							<video id="GravityVid" width="640" height="480" autoplay onended="lockControl('GravityVid','Unlocked')">
+							  <source src="/Media/Video/waterdrop.mp4" type="video/mp4">
+							</video>
+						</div>
+					</section>
+					<section id='GW'>
+						<!-- Gravitational Waves(slide 2) -->
+						<div class="VideoContainer">
+							<video id="GWVid" width="640" height="480" autoplay onended="lockControl('GWVid','Unlocked')">
+							  <source src="/Media/Video/waterdrop.mp4" type="video/mp4">
+							</video>
+						</div>
+					</section>
+					<section id='BlackHole'>
+						<!-- Black Holes(slide 3) -->
+						<div class="VideoContainer">
+							<video id="BHVid" width="640" height="480" autoplay onended="lockControl('BHVid','Unlocked')">
+							  <source src="/Media/Video/waterdrop.mp4" type="video/mp4">
+							</video>
+						</div>
+					</section>
+
+					<section id='Laser'>
+						<!-- Laser(slide 4) -->
+						<div class="VideoContainer">
+							<video id="LaserVid" width="640" height="480" autoplay onended="lockControl('LaserVid','Unlocked')">
+							  <source src="/Media/Video/waterdrop.mp4" type="video/mp4">
+							</video>
+						</div>
+					</section>
+					<section id='IFO'>
+						<!-- Interferometry(slide 5) -->
+						<div class="VideoContainer">
+							<video id="IFOVid" width="640" height="480" autoplay onended="lockControl('IFOVid','Unlocked')">
+							  <source src="/Media/Video/waterdrop.mp4" type="video/mp4">
+							</video>
+						</div>
+					</section>
+
+					<section id='How'>
+						<!-- How Interferometers Find GW(slide 6) -->
+						<div class="VideoContainer">
+							<video id="HowVid" width="640" height="480" autoplay onended="lockControl('HowVid','Unlocked')">
+							  <source src="/Media/Video/waterdrop.mp4" type="video/mp4">
+							</video>
+						</div>
+					</section>
+
+					<section id='Ligo'>
+						<!-- LIGO (slide 7)-->
+						<div class="VideoContainer">
+							<video id="LigoVid" width="640" height="480" autoplay onended="lockControl('LigoVid','Unlocked')">
+							  <source src="/Media/Video/waterdrop.mp4" type="video/mp4">
+							</video>
+						</div>
+					</section>
+
+					<section id='Detection'>
+						<!-- The Detection (slide 8)-->
+						<div class="VideoContainer">
+							<video id="DetectionVid" width="640" height="480" autoplay onended="lockControl('DetectionVid','Unlocked')">
+							  <source src="/Media/Video/waterdrop.mp4" type="video/mp4">
+							</video>
+						</div>
+					</section>
+			</div>
+		</div>	
+
+<!-- This is the start of the configuration files for the exhibit peice -->
+	<script src="/reveal/lib/js/head.min.js"></script>
+	<script src="/reveal/js/reveal.js"></script>
+	<script>
+	Reveal.initialize({
+
+    // Display controls in the bottom right corner
+    controls: false,
+
+    // Display a presentation progress bar
+    progress: false,
+
+    // Display the page number of the current slide
+    slideNumber: false,
+
+    // Push each slide change to the browser history
+    history: false,
+
+    // Enable keyboard shortcuts for navigation
+    keyboard: false,
+
+    // Enable the slide overview mode
+    overview: false,
+
+    // Vertical centering of slides
+    center: true,
+
+    // Enables touch navigation on devices with touch input
+    touch: true,
+
+    // Loop the presentation
+    loop: true,
+
+    // Change the presentation direction to be RTL
+    rtl: false,
+
+    // Turns fragments on and off globally
+    fragments: true,
+
+    // Flags if the presentation is running in an embedded mode,
+    // i.e. contained within a limited portion of the screen
+    embedded: false,
+
+    // Flags if we should show a help overlay when the questionmark
+    // key is pressed
+    help: false,
+
+    // Flags if speaker notes should be visible to all viewers
+    showNotes: false,
+
+    // Number of milliseconds between automatically proceeding to the
+    // next slide, disabled when set to 0, this value can be overwritten
+    // by using a data-autoslide attribute on your slides
+    autoSlide: 0,
+
+    // Stop auto-sliding after user input
+    autoSlideStoppable: true,
+
+    // Enable slide navigation via mouse wheel
+    mouseWheel: false,
+
+    // Hides the address bar on mobile devices
+    hideAddressBar: true,
+
+    // Opens links in an iframe preview overlay
+    previewLinks: false,
+
+    // Transition style
+    transition: 'fade', // none/fade/slide/convex/concave/zoom
+
+    // Transition speed
+    transitionSpeed: 'slow', // default/fast/slow
+
+    // Transition style for full page slide backgrounds
+    backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+
+    // Number of slides away from the current that are visible
+    viewDistance: 3,
+
+    // Parallax background image
+    parallaxBackgroundImage: '', // e.g. "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'"
+
+    // Parallax background size
+    parallaxBackgroundSize: '', // CSS syntax, e.g. "2100px 900px"
+
+    // Number of pixels to move the parallax background per slide
+    // - Calculated automatically unless specified
+    // - Set to 0 to disable movement along an axis
+    parallaxBackgroundHorizontal: null,
+    parallaxBackgroundVertical: null
+
+});
+	</script>
+
+	
+	</body>
+	</head>
+<html>

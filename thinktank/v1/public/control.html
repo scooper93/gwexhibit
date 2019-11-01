@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>MichelsonControl</title>
+  <link rel="stylesheet" href="css/control.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/jquery.min.js"></script>
+  
+ </head>  
+
+<script>
+  var socket = io();
+  var Locked = false;
+</script>
+<body>  
+  <script>
+    var socket = io();
+    socket.on('ButtonControl', function (msg) {
+        console.log('ControlPanel is ' + msg);
+        if(msg=='Unlocked'){
+          Locked=false;
+          console.log('Control Panel is Unlocked');
+          sleep(2000);
+          controller('GoHome','Home')
+        }
+        else if(msg=='Locked') {
+          Locked=true;
+        }
+    });
+    // Incase sleeping is needed
+    function sleep(milliseconds) {
+      var start = new Date().getTime();
+      for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds){
+        break;
+        }
+      }
+    }
+  </script>
+
+  <script type="text/javascript">
+    function controller(elmt,msg) {
+        var socket =io();
+        console.log(Locked)
+        if(Locked==true){
+          alert('Control Panel is Locked');
+        }
+        else if (Locked==false) {
+          socket.emit('PageRequest',msg);
+          console.log('emmitted at User '+msg);
+          }
+        else {
+          console.log('You should never see this message');
+        }
+      }
+</script>
+
+
+<div ="PageNavigator">
+  <div class="Nav_bar">
+    <div class="menu-item">
+      <h4 id="Home" onclick="controller(this,'Home')">Home</h4>
+  </div>
+
+  <div class="menu-item">
+    <h4>Gravity</h4>
+       <ul>
+        <li id="Gravity" onclick="controller(this,'Gravity')"><a href="#">Gravity</a></li>
+        <li id="GW" onclick="controller(this,'GW')"><a href="#">Gravitational Waves</a></li>
+        <li id="BlackHole" onclick="controller(this,'BlackHole')"><a href="#">Black Holes</a></li>
+      </ul>
+  </div>
+  <div class="menu-item">
+    <h4>The Object </h4>
+      <ul>
+        <li id="Lasers" onclick="controller(this,'Lasers')"><a href="#">Lasers</a></li>
+        <li id="IFO" onclick="controller(this,'IFO')"><a href="#">Interferometry</a></li>
+        <li id="How" onclick="controller(this,'How')"><a href="#">How interferometers find a GW</a></li>
+      </ul>
+    </div>
+  <div class="menu-item">
+      <h4>Detecting Gravitational Waves</h4>
+      <ul>
+        <li id="How" onclick="controller(this,'How')"><a href="#">How interferometers find a GW</a></li>
+        <li id="LIGO" onclick="controller(this,'LIGO')"><a href="#">LIGO</a></li>
+        <li id="Detection" onclick="controller(this,'Detection')"><a href="#">The Detection</a></li>
+      </ul>
+  </div>
+      <div class="sendGW">
+      <img src="Media/Images/SendGWButton.png" width="100px" onlick="alert('GW Sent to Device')" </img>
+      <!-- need to add in here functionality to interface with the arduino. -->
+    </div>
+  </div>
+</div>
+  
+ 
+</body>
+ 
+</html>
