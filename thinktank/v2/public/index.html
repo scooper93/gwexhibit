@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!-- Beginning of document -->
+<html lang="en">
+<head>  
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!--This just sets up the page config - shouldn't need to be changed -->
+    <title>Michelson Exhibit</title>
+    <meta name="description" content="Thinktank Gravitational Wave Control Screen">
+    <meta name="author" content="Sam Cooper">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- These are the stylesheets (the themes for the site)-->
+    <!-- <link rel="stylesheet" href="reveal/lib/css/zenburn.css"> -->
+    <!-- Code syntax highlighting -->
+    <!-- This is packages needed for socket io and reveal.js -->   
+   <script src="/socket.io/socket.io.js"></script>
+   <script src="js/jquery.min.js"></script>
+   <script src="js/jquery.textfill.min.js"></script>
+   <link rel="stylesheet" href="css/pure/pure-min.css" type="text/html">
+   <link rel="stylesheet" href="css/pure/grids-responsive.css">
+   <link rel="stylesheet" href="/node/animate.css/animate.min.css">
+
+<!--   <script src="reveal/lib/js/head.min.js"></script>
+  <script src="reveal/js/reveal.js"></script> -->
+ </head>  
+
+
+  <script>
+  var socket = io(); // Exposes the global io element
+  var Locked = false;   // Needed to keep page from moving when video plays
+  var duration; // Duration of the video
+  var score = 0;    // Quiz Score
+  // the following code isnt used yet as this will form part of the timout function
+  var idle = 3*60;   // seconds needed to idle before the page reverts
+  var idleTime; // used for idling
+  var timeoutInterval;
+  var lastVideoh;
+  var pageNav;
+  var pageHeight = window.innerHeight;
+  var pageWidth = window.innerWidth;
+  var currentIndex;
+</script>
+
+<body>
+
+<!--- The main html section goes here -->
+<div class="pure-g">
+  <div class="pure-u-sm-6-24 menu">
+    <div class="mainNav"> 
+    <!--Navigation bits go here -->
+      <div id="sub1" class="secondaryNav">
+        <h2 class="subTitle"> Home </h2>
+      </div>
+      <div id="sub2" class="secondaryNav">
+        <h2 class="subTitle"> The Detector </h2>
+      </div>
+      <div id="sub3" class="secondaryNav">
+        <h2 class="subTitle"> Gravity </h2>
+      </div>
+      <div id="sub4" class="secondaryNav">
+        <h2 class="subTitle"> Detecting Gravitational Waves </h2>
+      </div>
+      <div id="sub5" class="secondaryNav">
+        <h2 class="subTitle"> What have we seen? </h2>
+      </div>
+      <div id="sub6" class="secondaryNav">
+        <h2 class="subTitle"> Quiz </h2>
+      </div>
+      <div id="sub7" class="secondaryNav">
+        <h2 class="subTitle"> Learn More! </h2>
+      </div>     
+    </div>
+
+  </div>
+  <div class="pure-u-sm-18-24 contentContainer">
+    <iframe src="content.html" id="mainContent" frameborder="0"></iframe>
+  </div>
+
+
+</div>
+<link rel="stylesheet" href="css/index.css">
+
+<script src ="js/index.js"> </script>
+</html>

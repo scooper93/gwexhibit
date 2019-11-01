@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<!--This just sets up the page config - shouldn't need to be changed -->
+		<meta charset"utf-8">
+		<title>Michelson Exhibit</title>
+		<neta name="description" content="An exmaple of the gui that can be used for the michelson display project">
+		<meta name="author" content="Sam Cooper">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		
+		<!-- These are the stylesheets (the themes for the site)-->
+		<link rel="stylesheet" href="css/projector.css">
+		<!-- Code syntax highlighting -->
+	 <script src="/socket.io/socket.io.js"></script>
+	<!-- Exposes Socket io Globally -->
+	<script>var socket= io();</script>
+	 <script src="/js/jquery.min.js"></script>
+	 <script src="/js/graph.js"></script>
+	 <script src="/js/projector.js"></script>
+	 <!-- <script src="/js/graphtest.js>"></script> -->
+	</head>
+	<script>
+  // any variables we want to be created before we load the page
+  var socket =io();
+  var Locked;  // For seeing the global state
+  var signal;
+  var lastval;
+  var graphy;
+  var drawingSpeed =60;
+  var FPS = 30;
+  var pointsPerDraw =1+Math.ceil(drawingSpeed/FPS);
+  var l = 0;
+  var tempArray1 = new Array(pointsPerDraw);
+  var numAverages = 5;
+  var tempArray = new Array(numAverages).fill(0);
+	</script>
+
+	<body>
+
+		<!-- Here we select where we are and what webcam that we want -->
+		    <!-- <video autoplay="true" id="videoElement" class="webcam1"></video> -->
+		    	<!-- Local Webcam -->
+		    <img src="http://10.3.1.107:8081/" alt="Camera 1" class="webcam1"></a> <!-- Thinktank -->
+		    <!-- <img src="http://147.188.32.16:8081/" alt="Camera 1" class="webcam1"></a> Uni Pi --> 
+		<!--If in thinktank use internal ip 10.3.1.107, otherwise use the other camera 1 item --> 
+		<div id="videoContainer">
+			<!-- The video container that has the sources to each one of our videos.  We preload them too for speed-->
+			<video preload="auto" id="IFOVID" onended="lockControl('IFO','Unlocked')">
+				<source src="/media/video/What_is_it_subv2_large.mp4" type="video/mp4" />
+			</video>
+			<video preload="auto" id="BHVid" preload="auto" onended="lockControl('BlackHole','Unlocked')">
+				<source src="/media/video/Black_holes_and_gravitational_waves_subv2_large.mp4" type="video/mp4" />
+			</video>
+			<video preload="auto" id="DetVid" onended="lockControl('Detection','Unlocked')">
+				<source src="/media/video/Detecting_gravitational_waves_subv2_large.mp4" type="video/mp4" />
+			</video>
+			<video preload="auto" id="whwsVid" onended="lockControl('whws','Unlocked')">
+				<source src="/media/video/bhamGravWavesLow.mp4" type="video/mp4" />
+			</video>
+
+		</div>
+		<!-- <script>
+			var video = document.querySelector("#videoElement");
+			navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+			if (navigator.getUserMedia) {       
+				navigator.getUserMedia({video: true}, handleVideo, videoError);
+			}
+			function handleVideo(stream) {
+				video.src = window.URL.createObjectURL(stream);
+			}
+			function videoError(e) {
+				// do something
+			}
+
+		</script> -->
+		<div class="">
+			<div class=""></div>
+      <div class="" id="graph_container" style="height:260px;width:800px">
+        <canvas id="realtime_graph"></canvas>
+      </div>
+			<div class=""></div>
+		</div>
+		<script>
+		document.onload = startUp()
+		function startUp() {
+			graphy = new Plot();
+
+			graphy.plotOptions.drawXTickText= false;
+			graphy.plotOptions.drawYTickText = false;
+			// graphy.plotOptions.drawYTickText = false;
+			// Setting  titles
+			graphy.axisOption.title = "Signal";
+			graphy.axisOption.xLabel = "Time";
+			graphy.axisOption.yLabel = "Signal";
+			graphy.fontSize.title =20;
+			graphy.fontSize.xLabel =20;
+			graphy.fontSize.yLabel =20;
+			graphy.fontSize.xTick =10;
+			graphy.fontSize.yTick =10;
+			graphy.plotOptions.umVertGridLines= 5;
+			graphy.plotOptions.numHorGridLines= 5;
+			// Setting font colours
+			graphy.fontColour.xLabel = "rgba(234,198,122,1)";
+			graphy.fontColour.yLabel = "rgba(234,198,122,1)";
+			graphy.fontColour.title = "rgba(234,198,122,1)";
+			graphy.fontColour.xTick = "rgba(234,198,122,1)";
+			graphy.fontColour.yTick = "rgba(234,198,122,1)";
+			// Setting line colours
+			graphy.lineColour.yAxis = "rgba(35,50,55,1)";
+			graphy.lineColour.xAxis = "rgba(35,50,55,1)";
+			graphy.lineColour.xAick = "rgba(35,50,55,1)";
+			graphy.lineColour.yTick = "rgba(35,50,55,1)";
+			graphy.lineColour.xGrid = "rgba(35,50,55,0.5)";
+			graphy.lineColour.yGrid = "rgba(35,50,55,0.5)";
+			graphy.dataMax = 1024;
+			graphy.dataMin= 0;
+			graphy.initialisePlot();
+			drawStuff();
+		}
+	  	function drawStuff() {
+		   setInterval(function(){
+    	   reqData();
+	    		},Math.round(1000/drawingSpeed))
+  			}
+		</script>
+		<script> 
+  // dispWebcam();
+  socket.on('resExhibitState', function(msg){
+    if(msg==true) {
+      Locked=true;
+      // debugging
+      // console.log(Locked);
+      socket.emit('reqSignal'); 
+    }
+    else if (msg==false) {
+      // If we want to do anything when its not in use
+      // console.log('you should see this message')
+    }
+  });
+  socket.on('resSignalState', function(msg){
+   	// console.log(msg); // Currently for debugging
+    graphy.axisOption.title = msg;
+    graphy.initialisePlot();
+
+  });
+
+  socket.on('resGraphData', function(PDdata){
+    // if (PDdata == null) {
+    //   PDdata= lastval;
+    // }
+    // console.log(PDdata,ifo_sim)
+
+    var dataSend = average(PDdata);
+      tempArray1[l] = dataSend;
+      l=l+1;
+      if(l==pointsPerDraw) {
+        graphy.plotData(tempArray1);
+        l=0;
+      }
+    // plot.plotData(dataSend)
+    lastval = dataSend;
+  })
+
+  function reqData(){
+    socket.emit('reqGraphData'); // requests new graph data
+  }
+ // Not sure whether this will do what its intended. 
+function startUp() {
+  socket.emit('reqExhibitState',signal); // Not sure iof w eshould use socket.emit here or io.emit probably
+ // we'll need to use array.unshift and then array.pop
+  drawStuff();
+}
+socket.on('Heartbeat',function(msg){
+	console.log(msg);
+});
+
+  function average(newdata) {
+      tempArray.unshift(newdata);
+      tempArray.pop();
+      var averagedData =0;
+      for (var i = 0; i<numAverages; i++) {
+        averagedData = averagedData + tempArray[i];
+      }
+      return (averagedData/numAverages); 
+  };
+
+
+</script>
+	</body>
+
+<html>

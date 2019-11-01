@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<!-- Beginning of document -->
+<html lang="en">
+<head>  
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!--This just sets up the page config - shouldn't need to be changed -->
+  <title>Michelson Exhibit</title>
+  <meta name="description" content="Thinktank Gravitational Wave Control Screen">
+  <meta name="author" content="Sam Cooper">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <link rel="stylesheet" href="reveal/lib/css/zenburn.css"> -->
+
+  <!-- This is packages needed for socket io and reveal.js -->   
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="../node/reveal.js/lib/js/head.min.js"></script>
+  <script src="../node/reveal.js/js/reveal.js"></script>
+
+  <link rel="stylesheet" href="css/reveal/reveal.css" type="text/css">
+  <link rel="stylesheet" href="css/reveal/league.css" type="text/css">
+   <link rel="stylesheet" href="css/pure/pure-min.css" type="text/html">
+   <link rel="stylesheet" href="css/pure/grids-responsive.css">
+</head>
+
+
+<script>
+  var locked =false;
+  var socket = io(); // Exposes the global io element
+
+</script>
+<body>
+    <div class="reveal pure-g">
+
+      <div class="slides pure-g">
+
+
+      <section id="Home">
+      <!-- This has to be left blank -->
+        <section id="home1">
+          <div class="topicHeader">
+            <img src="media/images/titles/Home.png">
+          </div>
+          <div class="left">
+              <div>
+                <p class="topicPreview"> The Detector </p>
+                <img id="home_detector" class="smallImage" src="media/images/topPreview.png">
+              </div>
+              <br>
+              <br>
+              <div id="home_detecting">
+                <p class="topicPreview">Detecting Gravitational Waves</p>
+                <img class="smallImage" src="media/images/rightPreview.png"> 
+              </div>
+          </div>
+          <div class="right">
+            <div id="home_gravity">
+              <p class="topicPreview"> Gravity </p>
+              <img class="smallImage" src="media/images/massiveStar.jpg">
+            </div>
+            <br>
+            <br>
+            <br>
+            <div id="home_detections">
+              <p class="topicPreview"> What have we seen? </p>
+              <img class="smallImage" src="media/images/ns.jpg">
+            </div>
+          </div>
+        </section>
+           
+        <section id="Home2">
+          <div class="topicHeader">
+            <img src="media/images/titles/TheDetector.png">
+          </div>
+            <ul class="listHeading"> <h3>Learn About</h3>
+                <li class="listItem"> Interferometry </li>
+                <li class="listItem"> Detecting gravitational waves  </li>
+                <li class="listItem"> Detectors around the world </li>
+                <li class="listItem"> Birmingham's role </li>
+              </ul>
+            <div class ="enterButton">
+              <img src="media/images/buttons/enterButton.png">
+            </div>
+        </section>
+        <section id="Home3">
+          <div class="topicHeader">
+            <img src="media/images/titles/Gravity.png">
+          </div>
+            <ul class="listHeading"> <h3>Learn About</h3>
+                <li class="listItem"> Gravity </li>
+                <li class="listItem"> Einsteins Gravity </li>
+                <li class="listItem"> Black Holes and Neutron Stars </li>
+                <li class="listItem"> Gravitational Waves </li>
+              </ul>
+            <div class ="enterButton">
+              <img src="media/images/buttons/enterButton.png">
+            </div>
+        </section>
+        <section id="Home4">
+          <div class="topicHeader">
+            <img src="media/images/titles/DetectingGravitationalWaves.png">
+          </div>
+            <ul class="listHeading"> <h3>Learn About</h3>
+                <li class="listItem"> History of gravitational wave science? </li>
+                <li class="listItem"> The first detection </li>
+                <li class="listItem"> What we learnt </li>
+                <li class="listItem"> Future Gravitational Astronomy </li>
+              </ul>
+            <div class ="enterButton">
+              <img src="media/images/buttons/enterButton.png">
+            </div>
+        </section>
+        <section id="Home5">
+          <div class="topicHeader">
+            <img src="media/images/titles/WhatHaveWeSeen.png">
+          </div>
+            <ul class="listHeading"> <h3>Learn About</h3>
+                <li class="listItem"> The First Detection </li>
+                <li class="listItem"> Binary black holes</li>
+                <li class="listItem"> Binary neutron stars  </li>
+                <li class="listItem"> Future gravitational wave astronomy </li>
+              </ul>
+            <div class ="enterButton">
+              <img src="media/images/buttons/enterButton.png">
+            </div>
+        </section>
+        <section id="Home6">
+          <h1> Quiz </h1>
+          <h2> Test your knowledge of Gravitational Waves</h2>
+          <div class ="enterButton">
+            <img src="media/images/buttons/enterButton.png">
+          </div>
+        </section>
+        <section id="Home7">
+          <div class="topicHeader">
+            <img src="media/images/titles/LearnMore.png">
+          </div>
+          <div class =right>
+            <p> Laser Labs (Play our games!)</p>
+            <br>
+            <img src="media/images/laserlabs.png">
+            <br>
+            <br>
+            <p> http://laserlabs.org</p>
+          </div>
+          <div class="left">
+            <p> LIGO </p>
+            <img src="media/images/ligologo.png">
+            <p> http://www.ligo.org</p>
+          </div>
+          <div class="centerLearn">
+            <p> UoB Gravitational Waves Group</p>
+            <img src="media/images/GWA_logo_tmp.png">
+            <p>http://www.sr.bham.ac.uk/gwgroup/</p>
+          </div>
+        </section>
+      </section>
+      <section id="IFO">
+<!-- h1> This is the IFO Main Page</h1-->
+            <section id="IFOa">
+              <div class ="pure-g"> 
+              <div class="pure-u-1 topicHeader">
+                <img class="topicHeaderImage" src="media/images/titles/DetectingGravitationalWaves.png">
+              </div>
+              <div class= "pure-g contentDiv">
+                <div class="pure-u-11-24 left">
+                   <p>This is a model of a laser interferometer, an instrument for accurately measuring changes in distance. </p>
+                   <br>
+                   <p>The light from the laser is split down the two arms. It bounces off the mirrors and is recombined to form the image on the screen. The pattern flickers when the length of the arms is altered.</p>
+                </div>
+                <div class="pure-u-11-24 right">
+                  <td valign="top">
+                    <p><img class ="topicImageSingle" src="media/images/tmpimage_Michelson_dark.JPG" alt="Image credit: Anna Green. Model gravitational wave detector"></p>
+                    <p><img class ="topicImageSingle" src="media/images/Michelson.JPG" alt="Image credit: Anna Green. Model gravitational wave detector"> </p>
+                  </td>
+                </div>
+            </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+          
+            </section>
+            <!---->
+            <section id="IFO1a">
+              <!-- h1> This is the IFO Main Page</h1-->
+              <div class="topicHeader">
+              <img src="media/images/titles/ModelDetector.png">
+              </div>
+              <p>
+                <br>
+                <img class="topicImageWhole" src="media/images/MichelsonLabelled_crop.png" alt="Image credit: Anna Green, Simon Stevenson. Model ">
+              </p>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section>
+            <!---->
+            <section id="IFO1">
+              <!--h1> This is the 2nd IFO page</h1-->
+              <div class="topicHeader">
+              <img src="media/images/titles/StretchAndSquash.png">
+              </div>
+              <div class="topictext left">
+                  <p>Gravitational waves stretch and squash space. </p>
+                  <br>
+                  <p>However, this effect is incredibly tiny and so difficult to measure. We are now able to build laser interferometers sensitive enough to spot these effects.</p>
+                  <br>
+                  <p>Click <font color="#23A38F">next</font> to find out about real gravitational wave detectors.</p>
+                <!--acronym title="stretch and squash"><img src="media/images/tmpimage_stretch_and_squash_arrows2.png" alt="stretch and squash" width="100%" align="centre" vspace="5"</acronym-->
+                </div>
+                <div class="topicImage right">
+              <td valign="top">
+              <p><acronym title=""><img src="media/gifs/stretch_and_squash_1.gif" alt="Image credit: Hannah Middleton. Stretch and squash space time."></p>
+              </td>
+              </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section>
+            <section id="IFO2">
+                <!--h1> This is 3rd IFO page </h1-->
+             <div class="topicHeader">
+              <img class="topicHeader" src="media/images/titles/LIGO.png">
+                </div>
+                <div class="topictext left">
+                  <p>The <mark>Laser Interferometer Gravitational-wave Observatory</mark> (LIGO for short), is a scientific project to use gravitational waves to learn about our Universe. </p>
+                  <br>
+                  <p>LIGO have two detectors in the USA, which are like giant versions of the model interferometer you see here. There are plans for more detectors across the world. </p>
+                </div>
+                <div class="topicImage right">
+                  <td valign="top">
+                     <p><img class="topicImageDoubleHeight" src="media/images/detectors.png" alt="Image credit: Caltech/MIT/LIGO Lab. LIGO Detectors"></p>
+                  </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section>
+             <section id="IFO3">
+                <!--h1> This is 3rd IFO page </h1-->
+             <div class="topicHeader">
+              <img class="topicHeader" src="media/images/titles/Virgo.png">
+                </div>
+                <div class="topictext left">
+                  <p>Virgo is a gravitational wave detector in Italy. Like LIGO it is a giant laser interferometer.</p><br>
+                  <p>LIGO and Virgo work together to detect gravitational waves and learn about where they come from. Having more detectors helps us get more detailed information.</p>
+                </div>
+                <div class="topicImage right">
+                  <td valign="top">
+                     <p><img class="" src="media/images/virgo.jpg" alt="Image credit: The Virgo Collaboration"></p>
+                  </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section>
+            <section id="IFO4">
+                <!--h1> THis is the 4th IFO PAge</h1-->
+                <div class="topicHeader">
+                <img src="media/images/titles/UoB.png">
+                </div> 
+                <div class="topictext left">
+                  <p>The University of Birmingham is a member of the LIGO Collaboration.
+                  Researchers from Birmingham designed and built parts for the detectors. They also analyse the gravitational-wave signals to learn about black holes and gravity itself.</p>
+                  <br>
+                  <p>The picture shows parts of the LIGO gravitational wave detector. Hundreds of these were made in Birmingham and are used in the detector today.</p>
+                </div>
+                <div class="topicImage right">
+                  <td valign="top">
+                     <p><img src="media/images/BOSEMs.png" alt="Image credit: University of Birmingham. Componenents build in Birmingham."></p>
+                  </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+              </section>
+        </section>
+        <section id="Gravity">
+<!-- Start of Gravity Pages -->
+
+              <section id="GWBH">
+                <!--h1> This is the Main Black Hole Page </h1-->
+                <div class="topicHeader">
+                <img src="media/images/titles/Gravity.png">
+                </div>
+                <div class="topictext left">
+                  <p>Gravity is the force which causes apples to fall from trees, keeps the Moon orbiting around the Earth and the Earth orbiting the Sun.</p>
+                  <br>
+                  <p>Gravity is the most important force when studying space, black holes and gravitational waves (of course)! </p>
+                  <br>
+                  <p>What did Einstein think about gravity? Click <font color="#23A38F">next</font> to find out.</p>
+                </div>
+                <div class="topicImage right">
+                    <td valign="top">
+                       <p><img src="media/images/apple.JPG" alt="Image credit: Christopher Berry, Hannah Middleton. Apple falling with gravity."></p>
+                    </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+              </section>
+
+              <section id="GWBH1">
+                <!--h1> This is the 2nd Black Hole Page </h1-->
+                <div class="topicHeader">
+                <img src="media/images/titles/EinsteinsGravity.png">
+                </div>  
+                  <div class="topictext left">
+                    <p>Albert Einstein came up with his theory of general relativity in 1915, over 100 years ago.</p>
+                    <br>
+                    <p>He explained <mark>gravity</mark> as the curving of space. Space is curved by massive things, and objects move following this curvature.</p>
+                    <br>
+                    <p>Click <font color="#23A38F">next</font> to find out about massive stars.</p>
+                  </div>
+                  <div class="topicImage right">
+                    <td valign="top">
+                       <p><img class="topicImageDoubleHeight" src="media/images/Einstein1921_crop.jpg" alt="Image credit: F Schmutzer. Einstein in 1921"></p>
+                    </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+              </section>
+
+              <section id ="GWBH3">
+                <div class="topicHeader">
+                <img src="media/images/titles/MassiveStars.png">
+                </div>
+                <div class="topicText left">
+                  <p>The more material in an object, the strong its gravity.</p>
+                  <br>
+                  <p>Massive stars can be many times as big as our Sun. Their gravity is very strong. While they have fuel to burn, they can stay fluffy, but once it is used up they collapse under their own gravity.</p>
+                  <br>
+                  <p>Click <font color="#23A38F">next</font> to find out about neutron stars</p>
+                </div>
+                <div class="topicImage right">
+                  <td valign="top">
+                    <p><img src="media/images/massiveStar.jpg" title="Image credit: ESO: Artists impression of a massive star."></p>
+                  </td>
+                </div> 
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+              </section> 
+
+
+              <section id ="GWBH3">
+                <div class="topicHeader">
+                <img src="media/images/titles/NeutronStars.png">
+                </div>
+                <div class="topicText left">
+                  <p>Neutron stars are the remains of collapsed massive stars. The strong gravity has squashed the star down to a ball of extremely dense material, similar to what is found in the nucleus of atoms..</p>
+                  <br>
+                  <p>Neutron stars about about twice the mass of our Sun, but only about 20 kilometres in diameter!</p>
+                  <br>
+                  <p>Click <font color="#23A38F">next</font> to find out about black holes.</p>
+                </div>
+                <div class="topicImage right">
+                  <td valign="top">
+                    <p><img src="media/images/ns.jpg" alt="Image credit: NSF/LIGO/Sonoma State University/Aurore Simonnet. Artists Impression of a Nuetron Star."></p>
+                  </td>
+                </div> 
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+              </section> 
+
+              <section id="GWBH4">
+                <!--h1> This is the 3rd Black Hole Page </h1-->
+                <div class="topicHeader">
+                <img src="media/images/titles/BlackHoles.png">
+                </div>
+                <div class="topictext left">
+                  <p>Black holes were predicted by general relativity. They are regions of extremely strong gravity. Close to a black hole, gravity is so strong that nothing can escape, not even light! </p>
+                  <br>
+                  <p>Black holes can be born when massive stars, much bigger than our Sun, collapse.</p>
+                  <br>
+                  <p>Click <font color="#23A38F">next</font> to find out about gravitational waves.</p>
+                </div>
+                <div class="topicImage right">
+                  <td valign="top">
+                    <p><img src="media/images/NASA_BH_cropcredit.png" alt="Image credit: NASA/JPL-Caltech. Black hole."></p>
+                  </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next" src="media/images/buttons/NEXT_1.png">
+            </div>
+              </section>
+
+              <section id="GWBH5">
+                <!--h1> This is the 4th Black Hole Page </h1-->
+                <div class="topicHeader">
+                <img src="media/images/titles/GravitationalWaves.png">
+                </div>
+                <div class="topictext left">
+                  <p>Another prediction of general relativity are gravitational waves.</p>
+                  <br> 
+                  <p>When massive objects accelerate, the curvature of space changes. It takes time for these changes to move out, like ripples across a pond. These ripples in space are gravitational waves.</p>
+                </div>
+                <div class="topicImage right">
+                  <td valign="top">
+                    <p><img class="topicImageDoubleHeight" src="media/images/gravwaves_highcontrast.png" alt="Image credit: Gravitational Wave Group University of Birmingham. Binary black hole and gravitational waves"></p>
+                  </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+              </section>
+
+        </section>
+        <section id="Detections">
+<!-- Start of Detection Vid -->
+            <section id="Det">
+              <!--h1> This is the Main Detection Page </h1-->
+              <div class="topicHeader">
+              <img src="media/images/titles/Discovery.png">
+              </div>
+                <div class="topictext left">
+                  <p>14 September 2015: The two LIGO detectors make the first direct observation of <mark>gravitational waves</mark>. </p>
+                  <br>
+                  <p>After 40 years of work on gravitational-wave detectors, we are able to confirm a prediction Einstein made 100 years ago and discover more about <mark>black holes</mark>.</p>
+                  <br>
+                  <p>Where did these gravitational waves come from? Click <font color="#23A38F">next</font> to find out.</p>                
+                </div>
+                <div class="topicImage right">
+                  <td valign="top">
+                    <p><img src="media/images/waveform_labelled_offset.png" alt="Image credit: LIGO. First detection of gravitational waves."></p>
+                  </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section>
+            <section id="Det2">
+              <!--h1> This is the 2nd Detection Page </h1-->
+              <div class="topicHeader">
+              <img src="media/images/titles/WhatWasTheSignal.png">
+              </div>
+              <div class="topictext left">
+                  <p>The gravitational waves came from a binary <mark>black hole merger</mark>. This means that two black holes orbited each other, spiralled together and formed a single, larger black hole.</p>
+                  <br>
+                  <p>How big were the black holes? Click <font color="#23A38F">next</font> to find out and see what we can learn from gravitational waves.</p>
+                </div>
+                <div class="topicImage right">
+                    <td valign="top">
+                       <p><img src="media/images/sxs_bbh_crop.png" alt="Image credit: SXS. Binary black hole simulation."></p>
+                    </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section>
+            <section id="Det3">
+              <!--h1> This is the 3rd Detection Page </h1-->
+              <div class="topicHeader">
+              <img src="media/images/titles/TwoBHMergingTogether.png">  
+                <p>
+                  <br>
+                  <img src="media/images/bh_timeline3_bkg.png"  alt="Image credit: Hannah Middleton. Binary black hole merger timeline.">
+                </p>
+              </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section>
+            <section id="Det4">
+              <!--h1> This is the 4th Detection Page </h1-->
+              <div class="topicHeader">
+              <img src="media/images/titles/WhatDidWeLearn.png"> 
+              </div>
+              <div class="topictext left">
+                <p>Gravitational waves are a brand new way to do astronomy. They've told us that not only do black holes really exist, but they exist in pairs which collide! These collisions emit gravitational waves exactly as Einstein predicted.</p> 
+                <br>
+                <p>Gravitational waves tell us things we never knew before, like where black holes are in the sky, and how heavy they are.</p>
+                </div>
+                <div class="topicImage right">
+                    <td valign="top">
+                       <p><img src="media/images/gw150914_Sky.png" alt="Image credit: LIGO/Axel Mellinger. Location on the sky for the first gravitational wave detection." ></p>
+                    </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section>
+            <section id="Det5">
+              <!--h1> This is the 4th Detection Page </h1-->
+              <div class="topicHeader">
+              <img src="media/images/titles/WhatCanWeSee.png">
+              </div>
+              <div class="topicTextThin">
+                <!--acronym title="Image credit: "><img src="media/images/future_detectors.png" alt="Image credit:" width="80%" align="centre" valign="centre" vspace="5"</acronym-->
+                <p>As well as being able to detect gravitational waves from binary black hole inspirals, we can detect them from binary neutron stars, and a neutron star black hole collisions.</p>  
+
+                <br><p>As of the end of the second observing run, we've seen binary black holes, and binary neutron stars collide and produce gravitational waves.</p>
+                </div><br>
+                <div class="topicImageWide">
+                    <td valign="top">
+                       <p><img src="media/images/blackHolemerger.jpg" alt="Image credit: Aurore Simonnet, EPO Sonoma State University"></p>
+                    </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section>
+            <section id ="Det6">
+              <div class="topicHeader">
+              <img src="media/images/titles/WhatNext.png">
+              </div>
+              <div class="topicTextThin">
+                <!--acronym title="Image credit: "><img src="media/images/future_detectors.png" alt="Image credit:" width="80%" align="centre" valign="centre" vspace="5"</acronym-->
+                 <p>We continue to learn about the universe with gravitational waves, upgrading the detectors to improve the range and opperating time. </p><br><p>Colliding black holes and neutron stars are not the only objects which create gravitational waves. Who knows what we will discover next?</p>
+                </div>
+                <div class="topicImageWide">
+                    <td valign="top">
+                       <p><img src="media/images/future_detectors.png" alt="Image credit: Caltech/MIT/LIGO Lab. Plans for future detectors."></p>
+                    </td>
+                </div>
+                <div class="topictextWole">
+                      <p>In the future, there are plans for more gravitational-wave detectors around the world and even in space!</p>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+            </section> 
+          </section>
+        </section>
+        <section id="WHWS">
+          <section id="whws1">
+            <div class="topicHeader">
+              <img src="media/images/titles/Discovery.png">
+              </div>
+              <div class="topictext left">
+                <p>14 September 2015: The two LIGO detectors make the first direct observation of gravitational waves.</p> 
+                <br>
+                <p>After 40 years of work on gravitational-wave detectors, we are able to confirm a prediction Einstein made 100 years ago and discover more about black holes.</p>
+                </div>
+                <div class="topicImage right">
+                    <td valign="top">
+                       <p><img src="media/images/gw150914_Sky.png" alt="Image credit: LIGO/Axel Mellinger. Location on the sky for the first gravitational wave detection." ></p>
+                    </td>
+                </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+          </section>
+          <section id="whws2">
+            <div class="topicHeader">
+              <img src="media/images/titles/DetectionTimeline.png">
+            </div>
+            <div class="topicTextThin"> The graphic to the right shows the timeline of events for the first detection. First the inspiral of the two black holes, this can take thousands, even millions of years. We detect the last 0.4 seconds of the inspiral. This is quickly followed by the merger, and finally the ringdown. 
+            </div>
+            <div class="topicImageWide">
+              <img src ="media/images/bbhMergertimeline.jpg">
+              <p class="imageCredit">Aurore Simonnet, E/PO Sonoma State University</p>
+            </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+          </section>
+          <section id="whws3">
+            <div class="topicHeader">
+            <img src="media/images/titles/MoreDiscoveries.png">
+            </div>
+            <div class="topicTextThin">
+              <p>Since September 2015 we have now observed many more binary black hole mergers. This family of black holes comes in a range of different masses, from around 7 times the mass of our Sun to over 30 times.</p><br><p>Gravitational waves are a brand new way to do astronomy. We would not have found these binary black holes without them.</p>
+            </div>
+            <div class="topicImageWide">
+              <td valign="top">
+                       <p><img src="media/images/allBhmass.jpg" alt="Image credit: LSC/Sonoma State University/Aurore Simonnet." ></p>
+                    </td>
+            </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+          </section>
+          <section id="whws4">
+            <div class="topicHeader">
+            <img src="media/images/titles/BinaryNeutronStars.png">
+            </div>
+            <div class="topicText">
+              <p>17 August 2017: The two LIGO detectors and the Virgo detector make their first observation of gravitational waves from a binary neutron star merger.</p> <br> <p> The signal is similar to that for a binary black hole merger, but because neutron stars are less massive, it lasts much longer.</p>
+            </div>
+            <div class="topicImage">
+              <img src="media/images/bns.jpg">
+              <p class="imageCredit">NASA/Swift/Dana Berry</p>
+            </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+          </section>
+          <section id="whws5">
+            <div class="topicHeader">
+            <img src="media/images/titles/GravityAndLight.png">
+            </div>
+            <div class="topicText">
+              <p> Binary black holes can only be observed with gravitational waves. However, when two neutron stars merge there is a huge explosion, which can be seen with telescopes. <p> <br>
+                <p> Thanks to LIGO and Virgo, astronomers around the world saw light coming from the merger. We now know that gamma ray bursts, some of the most violent explosions in the Universe come from merging neutron stars, and that heavy elements like gold and platinum are made in these collisions.
+                </p>
+            </div>
+            <div class="topicImage">
+              <img id="GravityAndLight" src="media/images/bnsAfterGlow.gif">
+              <p class="imageCredit">The Dark Energy Camera GW-EM Collaboration and the DES Collaboration / PI: Berger; J. Najita, M. Newhouse & NOAO/AURA/NSF.</p>
+            </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+          </section>
+          <section id="whws6">
+            <div class="topicHeader">
+            <img src = "media/images/titles/WhatsNext.png">
+            </div>
+            <div class="topicText"> <p>We will continue to learn about our Universe with gravitational waves. Colliding black holes and neutron stars are not the only objects which create gravitational waves. Who knows what we will discover next. In the future, there are plans for more gravitational wave detectors around the world and even in space! </p>
+            </div>
+            <div class="topicImage">
+              <p><img src="media/images/future_detectors.png" alt="Image credit: Caltech/MIT/LIGO Lab. Plans for future detectors."></p>
+            </div>
+            <div class="topicFooter">
+                <img class="button left prev" src="media/images/buttons/PREVIOUS_1.png">
+                  <div class="clockDiv">
+                      <span class="minutes"></span>
+                      <div class="timerText">:</div>
+                      <span class="seconds"></span>
+                </div>
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+            </div>
+          </section>
+        </section>
+        <section id="Quiz">
+            <!-- Start of the Quiz -->
+            <section id="Quiz">
+              <!--h1> This is the First Question Page </h1-->
+            <img src="media/images/titles/Question1.png">
+            <div class="question">
+              <p>Question 1: LIGO's first observation of gravitational waves came from where?</p>
+              <br><br>
+              <p class="qinstruction"> Click on an option to reveal the answer </p>
+              <div class="qOptions">
+                <br>
+                <p><ul>
+                  <li class="option" data-val="incorrect">A star collapsing to form a black hole</li>
+                  <li class="option" data-val="incorrect">The Big Bang</li>
+                  <li class="option" data-val="correct">Two black holes merging together</li>
+                  <li class="option" data-val="incorrect">A rapidly spinning star</li>
+                </ul></p>
+              </div>
+            </div>
+            </section>
+            
+            <section id="Quiz2">
+              <img src="media/images/titles/Question2.png">  
+              <!--h1> This is the 3rd Quiz Page </h1-->
+              <div class="question">
+              <p>Question 2: Where is the force of gravity strongest?</p>
+              <p class="qinstruction"> Click on an option to reveal the answer </p>
+              <div class="qOptions">
+                <br></br>
+                <p><ul>
+                  <li class="option" data-val="incorrect">Close to a light object</li>
+                  <li class="option" data-val="correct">Close to a massive object</li>
+                  <li class="option" data-val="incorrect">Far from a massive object</li>
+                  <li class="option" data-val="incorrect">Far from a light object</li>
+                </ul></p>
+              </div>
+            </div>
+            </section>
+            <section id="Quiz3">
+              <img src="media/images/titles/Question3.png">
+              <!--h1> This is the 3rd Quiz Page </h1-->
+              <div class="question">
+              <p>Question 3: What is the effect of a passing gravitational wave?</p>
+              <p class="qinstruction"> Click on an option to reveal the answer </p>
+              <div class="qOptions">
+                <br></br>
+                <p><ul>
+                  <li class="option" data-val="incorrect">To create light</li>
+                  <li class="option" data-val="incorrect">To make things heavier</li>
+                  <li class="option" data-val="correct">To stretch and squeeze space</li>
+                  <li class="option" data-val="incorrect">To produce awesome surfing</li>
+                </ul></p>
+              </div>
+            </div>
+            </section>
+            <section id="Quiz4">
+              <img src="media/images/titles/Question4.png">  
+              <!--h1> This is the 4th Quiz Page </h1-->
+              <div class="question">
+              <p>Question 4: LIGO's gravitational-wave detectors are larger than our model, how long are their arms?</p>
+              <p class="qinstruction"> Click on an option to reveal the answer </p>
+              <div class="qOptions">
+                <br></br>
+                <p><ul>
+                  <li class="option" data-val="incorrect">30 metres (as long as a blue whale)</li>
+                  <li class="option" data-val="incorrect">800 metres (the height of the Burj Khalifa)</li>
+                  <li class="option" data-val="incorrect">0.00000000005 metres (the size of a hydrogen atom)</li>
+                  <li class="option" data-val="correct">4000 metres (the distance between the Bull Ring and the University of Birmingham)</li>
+                </ul></p>
+              </div>
+            </div>
+            </section>
+            <section id="Quiz5">
+              <img src="media/images/titles/Question5.png">  
+              <!--h1> This is the 4th Quiz Page </h1-->
+              <div class="question">
+              <p>Question 5: Which of these statements are true about binary neutron star mergers?</p>
+              <div class="qOptions">
+                <br></br>
+                <p><ul>
+                  <li class="option" data-val="incorrect">Neutron stars are less massive, so the merger lasts longer</li>
+                  <li class="option" data-val="incorrect">The merger releases light and gravitational waves</li>
+                  <li class="option" data-val="incorrect">Neutron star mergers produce heavy elements like gold and platinum</li>
+                  <li class="option" data-val="correct">All of the above</li>
+                </ul></p>
+              </div>
+            </div>
+            </section>
+        </section>
+        <section id="Answers">
+<!-- Start of Answer pages -->
+            <section id="Answer1">
+              <!--h1> This is the 2nd Quiz Page </h1-->
+            <img src="media/images/titles/Answer1.png">  
+
+            <div class="question">
+              <p>Question 1: LIGO's first observation of gravitational waves came from where?</p>
+              <div class="qanswer">
+                <br>
+                <p class="incorrectText"></p>
+                <br>
+                <p><ul>
+                  <li class="incorrect">A star collapsing to form a black hole X</li>
+                  <li class="incorrect">The Big Bang X</li>
+                  <li class="answer">Two black holes merging together</li>
+                  <li class="incorrect">A rapidly spinning star X</li>
+                </ul></p>
+              </div>
+              <div class="imageFooter">
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+              </div>
+            </div>
+            <br>
+            <div class="qanswer">
+              <p class="answerexplanation">Answer: The first detection was of two black holes merging together, but we might see gravitational waves from the other objects in the future.</p>
+            </div>
+            </section>
+            <section id="Answer2">
+              <!--h1> This is the 2nd Quiz Page </h1-->
+            <img src="media/images/titles/Answer2.png">  
+
+            <div class="question">
+              <p>Question 2: Where is the force of gravity strongest?</p>
+              <div class="qanswer">
+                <br>
+                <p class="incorrectText"></p>
+                <br>
+                <p><ul>
+                  <li class="incorrect">Close to a light object X</li>
+                  <li class="answer">Close to a massive object</li>
+                  <li class="incorrect">Far from a masive object X</li>
+                  <li class="incorrect">Far from a light object X</li>
+                </ul></p>
+              </div>
+              <div class="imageFooter">
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+              </div>
+            </div>
+            <br>
+            <div class="qanswer">
+              <p class="answerexplanation">Answer: Close to a massive object, the force of gravity is strongest. It depends on both mass and distance. Black holes have the strongest gravity as all their mass is squeezed into a tiny volume.</p>
+            </div>
+            </section>
+            <section id="Answer3">
+              <!-- Answer page 3--->
+            <img src="media/images/titles/Answer3.png">
+            <div class="question">
+              <p>Question 3: What is the effect of a passing gravitational wave?</p>
+              <div class="qOptions">
+                <br>
+                <p class="incorrectText"></p>
+                <br>
+                <p><ul>
+                  <li class="incorrect">To create light X</li>
+                  <li class="incorrect">To make things heavier X</li>
+                  <li class="answer">To stretch and squeeze space</li>
+                  <li class="incorrect">To produce awesome surfing X</li>
+                </ul></p>
+              </div>
+              <div class="imageFooter">
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+              </div>
+            </div>
+            <br>
+            <div class="qanswer">
+              <p class="answerexplanation">Answer: Gravitational waves stretch and squeeze space. They are ripples in space which change distances between objects by a tiny amount.</p>
+            </div>
+            </section>
+            <section id="Answer4">
+              <!--Answer Page 4 -->
+            <img src="media/images/titles/Answer4.png"> 
+            <div class="question">
+              <p>Question 4: LIGO's gravitational-wave detectors are larger than our model, how long are their arms?</p>
+              <div class="qOptions">
+                <br>
+                <p class="incorrectText"></p>
+                <br>
+                <p><ul>
+                  <li class="incorrect">30 metres (as long as a blue whale) X</li>
+                  <li class="incorrect">800 metres (the height of the Burj Khalifa) X</li>
+                  <li class="incorrect">0.00000000005 metres (the size of a hydrogen atom) X</li>
+                  <li class="answer">4000 metres (the distance between the Bullring and the University of Birmingham)</li>
+                </ul></p>
+              </div>
+              <div class="imageFooter">
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+              </div>
+            </div>
+            <br>
+            <div class="qanswer">
+              <p class="answerexplanation">Answer: Both of the LIGO detectors have two 4000-metre arms.</p>
+            </div>
+            </section>
+            <section id="Answer5">
+              <!--Answer Page 5 -->
+            <img src="media/images/titles/Answer5.png"> 
+            <div class="question">
+              <p>Question 5: Which of these statements are true about binary neutron star merger detection?</p>
+              <div class="qOptions">
+                <br>
+                <p class="incorrectText"></p>
+                <br>
+                <p><ul>
+                  <li class="incorrect">Neutron stars are less massive, so the merger lasts longer</li>
+                  <li class="incorrect">The merger releases light and gravitational waves</li>
+                  <li class="incorrect">Neutron star mergers produce heavy elements like gold and platinum</li>
+                  <li class="correct">All of the above</li>
+                </ul></p>
+              </div>
+              <div class="imageFooter">
+                <img class="button right next"src="media/images/buttons/NEXT_1.png">
+              </div>
+            </div>
+            <br>
+            <div class="qanswer">
+              <p class="answerexplanation">All of these statements are true!</p>
+            </div>
+            </section>
+          </section>
+        <section id="finishQuiz">
+          <section>
+          </section>
+                    <section>
+          </section>
+                    <section>
+          </section>
+                    <section>
+          </section>
+                    <section>
+          </section>
+                    <section>
+                      <img id ="finishQuizImage" src ="/media/images/rightPreview.png">
+                      <img id ="backHomeImage" src ="/media/images/buttons/homeButton.png"> 
+          </section>
+          
+        </section>
+        
+      </div>
+
+    </div>
+
+    <script>
+Reveal.initialize({
+
+    width: "100%",
+    height: "100%",
+
+  // Display presentation control arrows
+  controls: false,
+
+  // Help the user learn the controls by providing hints, for example by
+  // bouncing the down arrow when they first encounter a vertical slide
+  controlsTutorial: false,
+
+  // Determines where controls appear, "edges" or "bottom-right"
+  controlsLayout: 'bottom-right',
+
+  // Visibility rule for backwards navigation arrows; "faded", "hidden"
+  // or "visible"
+  controlsBackArrows: 'faded',
+
+  // Display a presentation progress bar
+  progress: false,
+
+  // Set default timing of 2 minutes per slide
+  defaultTiming: 120,
+
+  // Display the page number of the current slide
+  slideNumber: false,
+
+  // Push each slide change to the browser history
+  history: false,
+
+  // Enable keyboard shortcuts for navigation
+  keyboard: true,
+
+  // Enable the slide overview mode
+  overview: false,
+
+  // Vertical centering of slides
+  center: false,
+
+  // Enables touch navigation on devices with touch input
+  touch: false,
+
+  // Loop the presentation
+  loop: false,
+
+  // Change the presentation direction to be RTL
+  rtl: false,
+
+  // Randomizes the order of slides each time the presentation loads
+  shuffle: false,
+
+  // Turns fragments on and off globally
+  fragments: true,
+
+  // Flags if the presentation is running in an embedded mode,
+  // i.e. contained within a limited portion of the screen
+  embedded: true,
+
+  // Flags if we should show a help overlay when the questionmark
+  // key is pressed
+  help: false,
+
+  // Flags if speaker notes should be visible to all viewers
+  showNotes: false,
+
+  // Global override for autoplaying embedded media (video/audio/iframe)
+  // - null: media will only autoplay if data-autoplay is present
+  // - true: All media will autoplay, regardless of individual setting
+  // - false: No media will autoplay, regardless of individual setting
+  autoPlaymedia: null,
+
+  // Number of milliseconds between automatically proceeding to the
+  // next slide, disabled when set to 0, this value can be overwritten
+  // by using a data-autoslide attribute on your slides
+  autoSlide: 0,
+
+  // Stop auto-sliding after user input
+  autoSlideStoppable: true,
+
+  // Use this method for navigation when auto-sliding
+  autoSlideMethod: Reveal.navigateNext,
+
+  // Enable slide navigation via mouse wheel
+  mouseWheel: false,
+
+  // Hides the address bar on mobile devices
+  hideAddressBar: true,
+
+  // Opens links in an iframe preview overlay
+  // Add `data-preview-link` and `data-preview-link="false"` to customise each link
+  // individually
+  previewLinks: false,
+
+  // Transition style
+  transition: 'fade', // none/fade/slide/convex/concave/zoom
+
+  // Transition speed
+  transitionSpeed: 'slow', // default/fast/slow
+
+  // Transition style for full page slide backgrounds
+  backgroundTransition: 'fade', // none/fade/slide/convex/concave/zoom
+
+  // Parallax background image
+  parallaxBackgroundImage: '', // e.g. "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'"
+
+  // Parallax background size
+  parallaxBackgroundSize: '', // CSS syntax, e.g. "2100px 900px"
+
+  // Number of pixels to move the parallax background per slide
+  // - Calculated automatically unless specified
+  // - Set to 0 to disable movement along an axis
+  parallaxBackgroundHorizontal: null,
+  parallaxBackgroundVertical: null,
+
+  // The display mode that will be used to show slides
+  // display: 'block'
+
+});
+    </script>
+
+<script src="js/content.js"></script>
+<link rel="stylesheet" href="css/custom.css">
+
+</body>
+
+</html>

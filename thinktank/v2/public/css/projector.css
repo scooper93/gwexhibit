@@ -1,0 +1,79 @@
+html{
+	width:100%;
+	height:100%;
+	margin:0px;
+	padding:0px;
+    background-color: #cccccc;
+
+}
+body {
+	width:100%;
+	height:100%;
+	margin:0px;
+	padding:0px;
+	background-image: url("../media/images/thinktank_bgfinal.png");
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+/*.webcam1Small {
+    width: 30%;
+    height: 30%;
+    position:fixed;
+    left:10%;
+    top:20%;
+    display:none;
+}*/
+.webcam1{
+	width:50%;
+	height:50%;
+	position:fixed;
+	left:13%;
+	top:16%;
+	display:block;
+}
+
+#IFOVID{
+	width: 60%;
+	height: 40%;
+	z-index: 998;
+	position: absolute;
+	right:0%;
+	top:20%;
+	display:none;
+}
+#BHVid{
+	width: 60%;
+	height: 40%;
+	z-index: 998;
+	position: absolute;
+	right:0%;
+	top:20%;
+	display:none;
+}
+#DetVid{
+	width: 60%;
+	height: 40%;
+	z-index: 998;
+	position: absolute;
+	right:0%;
+	top:20%;
+	display:none;
+}
+#whwsVid{
+	width: 60%;
+	height: 40%;
+	z-index: 998;
+	position: absolute;
+	right:0%;
+	top:20%;
+	display:none;
+}
+
+#realtime_graph {
+	position:absolute;
+	bottom:0%;
+	left:5%;
+	/*height:30%;*/
+	/*width:100%;*/
+}
